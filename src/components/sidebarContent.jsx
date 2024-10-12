@@ -56,6 +56,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
     "spacs",
     "placement_cell",
     "purchase_and_store",
+    "rspc"
   ];
 
   const Modules = [
@@ -127,10 +128,10 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       url: "/department",
     },
     {
-      label: "Research",
+      label: "Research Projects",
       id: "rspc",
       icon: <ResearchIcon size={18} />,
-      url: "/",
+      url: "/research",
     },
     {
       label: "Purchase and Store",

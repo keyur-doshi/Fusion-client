@@ -1,0 +1,43 @@
+.formContainer {
+    max-width: 80vw; /* Increase width for two-column layout */
+    margin: auto;
+    padding: 3% 5%;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+  }
+  
+  .formTitle {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .fieldLabel {
+    margin-bottom: 8px;
+  }
+  
+  .fileInputContainer {
+    display: flex;
+    align-items: center;
+  }
+  
+  .fileInputButton {
+    margin-right: 10px;
+  }
+  
+  .fileName {
+    font-weight: bold;
+  }
+  
+  .dateInput {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .submitButtonContainer {
+    display: flex;
+    justify-content: center; /* Change to flex-end to align right */
+    margin-top: 3%;
+  }
+  

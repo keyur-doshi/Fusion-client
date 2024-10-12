@@ -50,6 +50,8 @@ const AcademicPage = lazy(() => import("./Modules/Academic/index"));
 const ValidateAuth = lazy(() => import("./helper/validateauth"));
 const MessPage = lazy(() => import("./Modules/Mess/pages/index"));
 const FileTracking = lazy(() => import("./Modules/FileTracking"));
+const ResearchProjects = lazy(() => import("./Modules/RSPC/researchProjects"));
+const RequestForms = lazy(() => import("./Modules/RSPC/requestForms"));
 const VisitorsContent = lazy(
   () => import("./Modules/Visitors_Hostel/visitorsContent"),
 );
@@ -353,6 +355,26 @@ export default function App() {
                 </Suspense>
               </Layout>
             </DesignationsProvider>
+          }
+        />
+        <Route
+          path="/research"
+          element={
+            <Layout>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <ResearchProjects/>
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/research/forms"
+          element={
+            <Layout>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <RequestForms/>
+              </Suspense>
+            </Layout>
           }
         />
         <Route
