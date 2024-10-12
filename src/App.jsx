@@ -10,6 +10,9 @@ import ForgotPassword from "./pages/forgotPassword";
 import AcademicPage from "./Modules/Academic/index";
 import ValidateAuth from "./helper/validateauth";
 
+import ResearchProjects from "./Modules/RSPC/researchProjects";
+import RequestForms from "./Modules/RSPC/requestForms";
+
 export default function App() {
   const location = useLocation();
   return (
@@ -28,7 +31,23 @@ export default function App() {
           path="/dashboard"
           element={
             <Layout>
-              <Dashboard />
+              <Dashboard/>
+            </Layout>
+          }
+        />
+        <Route
+          path="/research"
+          element={
+            <Layout>
+              <ResearchProjects/>
+            </Layout>
+          }
+        />
+        <Route
+          path="/research/forms"
+          element={
+            <Layout>
+              <RequestForms/>
             </Layout>
           }
         />
