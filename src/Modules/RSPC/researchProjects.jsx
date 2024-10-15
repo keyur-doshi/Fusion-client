@@ -6,10 +6,10 @@ import { Tabs, Container, Loader, Badge, Button, Divider, Flex, Grid, Paper, Sel
 import { useDispatch, useSelector } from "react-redux";
 import classes from '../RSPC/styles/researchProjectsStyle.module.css';
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
-import ProjectTable from "./components/projectTable.jsx";
-import RequestTable from "./components/requestTable.jsx";
-import InboxTable from "./components/inboxTable.jsx";
-import ProjectForm from "./components/projectForm.jsx";
+import ProjectTable from "./components/tables/projectTable.jsx";
+import RequestTable from "./components/tables/inboxTable.jsx";
+import InboxTable from "./components/tables/inboxTable.jsx";
+import ProjectForm from "./components/forms/projectForm.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 

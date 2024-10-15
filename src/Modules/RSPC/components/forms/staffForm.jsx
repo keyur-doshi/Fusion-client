@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import {Button, TextInput, Select, Radio, NumberInput, Textarea, Paper, Title, Grid, Text} from "@mantine/core";
 import { Calendar, FileText, User } from "@phosphor-icons/react";
-import classes from '../styles/formStyle.module.css';
+import classes from '../../styles/formStyle.module.css';
 
 const StaffForm = () => {
     const [uname, setUname] = useState("");

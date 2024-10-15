@@ -1,7 +1,7 @@
 import cx from 'clsx';
 import { useState } from 'react';
 import { Table, Button, Badge, ScrollArea } from '@mantine/core';
-import classes from '../styles/tableStyle.module.css';
+import classes from '../../styles/tableStyle.module.css';
 import { DownloadSimple, FileText } from "@phosphor-icons/react";
 
 const data = [
