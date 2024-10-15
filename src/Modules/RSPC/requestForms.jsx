@@ -6,8 +6,8 @@ import { Tabs, Container, Loader, Badge, Button, Divider, Flex, Grid, Paper, Sel
 import { useDispatch } from "react-redux";
 import classes from '../RSPC/styles/researchProjectsStyle.module.css';
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
-import StaffForm from "./components/staffForm.jsx";
-import ExpenditureForm from "./components/expenditureForm.jsx";
+import StaffForm from "./components/forms/staffForm.jsx";
+import ExpenditureForm from "./components/forms/expenditureForm.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
