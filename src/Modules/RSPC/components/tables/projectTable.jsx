@@ -1,184 +1,145 @@
-import cx from 'clsx';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { Table, Button, Badge, ScrollArea } from '@mantine/core';
-import classes from '../../styles/tableStyle.module.css';
+import cx from "clsx";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Badge, ScrollArea } from "@mantine/core";
+import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
+import ProjectModal from "../projectModal";
 
-const data = [
-  { status: 'OnGoing', name: 'Spacey', agency: 'kpr_agency' },
-  { status: 'Completed', name: 'Starry', agency: 'pkr_agency' },
-  { status: 'Terminated', name: 'Galaxy', agency: 'rpk_agency' },
-  { status: 'OnGoing', name: 'Spacey', agency: 'kpr_agency' },
-];
-//This data to come from researchProjects.jsx
-
-const statusColor = { OnGoing: '#85B5D9', Completed: 'green', Terminated: 'red' };
-
-function ProjectTable({setActiveTab}) {
+function ProjectTable({ setActiveTab, projectsData, username}) {
   const [scrolled, setScrolled] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [modalOpened, setModalOpened] = useState(false);
 
-  const role = useSelector(state => state.user.role);
-  const username = useSelector(state => state.user.username);
+  const role = useSelector((state) => state.user.role);
 
   const navigate = useNavigate();
-  const handleRequestClick = () => {
-    navigate('/research/forms');
+  const handleRequestClick = (id) => {
+    navigate("/research/forms", { state: { projectID: id } });
   };
 
-const handleAddClick=()=>{
+  const handleAddClick = () => {
     setActiveTab("2");
-}
+  };
 
-  const rows = data.map((row, index) => (
-    <Table.Tr key={index}>
+  const handleViewClick = (row) => {
+    setSelectedProject(row);
+    setModalOpened(true);
+  };
+
+  const badgeColor = {
+    OnGoing: "#85B5D9",
+    Completed: "green",
+    Terminated: "red",
+    Approved: "green",
+    Pending: "#85B5D9",
+    Rejected: "red",
+  };
+
+  const rows = projectsData.map((row, index) => (
+    (role!=="Professor" || row.pi_id===username) &&
+    (<Table.Tr key={index}>
       <Table.Td>
-        <Badge color={statusColor[row.status]} size="lg">
+        <Badge color={badgeColor[row.status]} size="lg">
           {row.status}
         </Badge>
       </Table.Td>
       <Table.Td>{row.name}</Table.Td>
-      <Table.Td>{row.agency}</Table.Td>
+      <Table.Td>{row.sponsored_agency}</Table.Td>
 
-      {role === 'Professor' && (
+      {role === "Professor" && (
         <Table.Td>
-        <Button onClick={handleRequestClick} variant="outline" color="#15ABFF" size="xs" style={{ borderRadius: '18px' }}>
-          <FileText size={26} style={{ marginRight: '3px' }} />
-          Request
-        </Button>
-      </Table.Td>
+          <Button
+            onClick={() => handleRequestClick(row.pid)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            style={{ borderRadius: "18px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            Request
+          </Button>
+        </Table.Td>
       )}
 
       <Table.Td>
-        <Button variant="outline" color="#15ABFF" size="xs" style={{ borderRadius: '18px' }} >
-          <Eye size={26} style={{ margin: '3px' }} />
+        <Button
+          onClick={() => handleViewClick(row)}
+          variant="outline"
+          color="#15ABFF"
+          size="xs"
+          style={{ borderRadius: "18px" }}
+        >
+          <Eye size={26} style={{ margin: "3px" }} />
           View
         </Button>
       </Table.Td>
     </Table.Tr>
+    )
   ));
 
   return (
-    <div style={{ padding: '3% 5%' }}>
-      <ScrollArea mah={300} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-        <Table highlightOnHover >
-          <Table.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
+    <div style={{ padding: "3% 5%" }}>
+      <ScrollArea
+        mah={300}
+        onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
+      >
+        <Table highlightOnHover>
+          <Table.Thead
+            className={cx(classes.header, { [classes.scrolled]: scrolled })}
+          >
             <Table.Tr>
-              <Table.Th className={classes['header-cell']}>Status</Table.Th>
-              <Table.Th className={classes['header-cell']}>Project Name</Table.Th>
-              <Table.Th className={classes['header-cell']}>Sponsor Agency</Table.Th>
-              {role === 'Professor' && (<Table.Th className={classes['header-cell']}>Request Application</Table.Th>)}
-              <Table.Th className={classes['header-cell']}>Project Info</Table.Th>
+              <Table.Th className={classes["header-cell"]}>Status</Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Project Name
+              </Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Sponsor Agency
+              </Table.Th>
+              {role === "Professor" && (
+                <Table.Th className={classes["header-cell"]}>
+                  Request Application
+                </Table.Th>
+              )}
+              <Table.Th className={classes["header-cell"]}>
+                Project Info
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
       </ScrollArea>
-      {role === 'rspc_admin' && (
-         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '3%', marginRight:'3%' }}>
-        <Button onClick={handleAddClick} color="green" size="s" style={{borderRadius: '18px' }}>
-          <PlusCircle size={32} style={{ marginRight: '3px' }}/> 
-          Add Project
-        </Button>
+      {role === "rspc_admin" && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "3%",
+            marginRight: "3%",
+          }}
+        >
+          <Button
+            onClick={handleAddClick}
+            color="green"
+            size="s"
+            style={{ borderRadius: "18px" }}
+          >
+            <PlusCircle size={32} style={{ marginRight: "3px" }} />
+            Add Project
+          </Button>
         </div>
       )}
+      <ProjectModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        projectData={selectedProject}
+      />
     </div>
   );
 }
 
 export default ProjectTable;
-
-// import cx from 'clsx';
-// import { useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import { useNavigate } from 'react-router-dom';
-// import { Table, Button, Badge, ScrollArea, Modal, Text } from '@mantine/core';
-// import classes from '../styles/tableStyle.module.css';
-// import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
-
-// const data = [
-//   { status: 'OnGoing', name: 'Spacey', agency: 'kpr_agency' },
-//   { status: 'Completed', name: 'Starry', agency: 'pkr_agency' },
-//   { status: 'Terminated', name: 'Galaxy', agency: 'rpk_agency' },
-//   { status: 'OnGoing', name: 'Spacey', agency: 'kpr_agency' },
-// ];
-
-// const statusColor = { OnGoing: '#85B5D9', Completed: 'green', Terminated: 'red' };
-
-// function ProjectTable({ setActiveTab }) {
-//   const [scrolled, setScrolled] = useState(false);
-//   const [opened, setOpened] = useState(false);
-//   const [selectedProject, setSelectedProject] = useState(null); // Store selected project details
-//   const role = useSelector(state => state.user.role);
-
-//   const navigate = useNavigate();
-//   const handleRequestClick = () => {
-//     navigate('/research/forms');
-//   };
-
-//   const handleAddClick = () => {
-//     setActiveTab("2");
-//   };
-
-//   const handleViewClick = (project) => {
-//     setSelectedProject(project); // Set the selected project details
-//     setOpened(true); // Open the modal
-//   };
-
-//   const rows = data.map((row, index) => (
-//     <Table.Tr key={index}>
-//       <Table.Td>
-//         <Badge color={statusColor[row.status]} size="lg">
-//           {row.status}
-//         </Badge>
-//       </Table.Td>
-//       <Table.Td>{row.name}</Table.Td>
-//       <Table.Td>{row.agency}</Table.Td>
-
-//       {role === 'Professor' && (
-//         <Table.Td>
-//           <Button onClick={handleRequestClick} variant="outline" color="#15ABFF" size="xs" style={{ borderRadius: '18px' }}>
-//             <FileText size={26} style={{ marginRight: '3px' }} />
-//             Request
-//           </Button>
-//         </Table.Td>
-//       )}
-
-//       <Table.Td>
-//         <Button onClick={() => handleViewClick(row)} variant="outline" color="#15ABFF" size="xs" style={{ borderRadius: '18px' }}>
-//           <Eye size={26} style={{ margin: '3px' }} />
-//           View
-//         </Button>
-//       </Table.Td>
-//     </Table.Tr>
-//   ));
-
-//   return (
-//     <div style={{ padding: '3% 5%' }}>
-//       <ScrollArea mah={300} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-//         <Table highlightOnHover>
-//           <Table.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
-//             <Table.Tr>
-//               <Table.Th className={classes['header-cell']}>Status</Table.Th>
-//               <Table.Th className={classes['header-cell']}>Project Name</Table.Th>
-//               <Table.Th className={classes['header-cell']}>Sponsor Agency</Table.Th>
-//               {role === 'Professor' && (<Table.Th className={classes['header-cell']}>Request Application</Table.Th>)}
-//               <Table.Th className={classes['header-cell']}>Project Info</Table.Th>
-//             </Table.Tr>
-//           </Table.Thead>
-//           <Table.Tbody>{rows}</Table.Tbody>
-//         </Table>
-//       </ScrollArea>
-      
-//       {role === 'rspc_admin' && (
-//         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '3%', marginRight: '3%' }}>
-//           <Button onClick={handleAddClick} color="green" size="s" style={{ borderRadius: '18px' }}>
-//             <PlusCircle size={32} style={{ marginRight: '3px' }} />
-//             Add Project
-//           </Button>
-//         </div>
-//       )}
 
 //       {/* Modal to display project details */}
 //       <Modal

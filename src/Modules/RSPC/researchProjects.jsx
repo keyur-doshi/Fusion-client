@@ -1,33 +1,103 @@
 import axios from "axios";
 import PropTypes from "prop-types";
-import { SortAscending, CaretCircleLeft, CaretCircleRight, Eye, FileText } from "@phosphor-icons/react";
+import {
+  SortAscending,
+  CaretCircleLeft,
+  CaretCircleRight,
+  Eye,
+  FileText,
+} from "@phosphor-icons/react";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Tabs, Container, Loader, Badge, Button, Divider, Flex, Grid, Paper, Select, Text, CloseButton } from "@mantine/core";
+import {
+  Tabs,
+  Container,
+  Loader,
+  Badge,
+  Button,
+  Divider,
+  Flex,
+  Grid,
+  Paper,
+  Select,
+  Text,
+  CloseButton,
+} from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
-import classes from '../RSPC/styles/researchProjectsStyle.module.css';
+import classes from "../RSPC/styles/researchProjectsStyle.module.css";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import ProjectTable from "./components/tables/projectTable.jsx";
 import RequestTable from "./components/tables/inboxTable.jsx";
 import InboxTable from "./components/tables/inboxTable.jsx";
 import ProjectForm from "./components/forms/projectForm.jsx";
+import Notifications from "./components/notifications.jsx";
+import { host } from "../../routes/globalRoutes/index.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function ResearchProjects() {
-  const role = useSelector(state => state.user.role);
-  const username = useSelector(state => state.user.username);
-
-  const [activeTab, setActiveTab] = useState("0");
+  const role = useSelector((state) => state.user.role);
+  const [username,setUsername]=useState("");
+  const [projectsData, setProjectsData] = useState([]);
+  const [activeTab, setActiveTab] = useState("1");
   const [sortedBy, setSortedBy] = useState("Most Recent");
   const [loading, setLoading] = useState(false);
   const [read_Loading, setRead_Loading] = useState(-1);
   const dispatch = useDispatch();
   const tabsListRef = useRef(null);
 
-  const tabItems = [{ title: "Projects" }];
-  if (role === 'Professor') tabItems.push({ title: 'Requests' });
-  else tabItems.push({ title: 'Inbox' });
-  if (role === 'rspc_admin') tabItems.push({ title: 'Add Project' });
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.error("No authentication token found!");
+      try {
+        const response = await axios.get(
+          `${host}/research_procedures/api/get-projects/`,
+          {
+            headers: {
+              Authorization: `Token ${token}`,  
+              "Content-Type": "application/json",  
+            },
+            withCredentials: true,  // Include credentials if necessary
+          }
+        );
+        console.log("Fetched Projects:", response.data);
+        setProjectsData(response.data);  // Store the fetched projects data
+      } catch (error) {
+        console.error("Error during Axios GET:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.error("No authentication token found!");
+      try {
+        const response = await axios.get(
+          `${host}/research_procedures/api/get-user/`,
+          {
+            headers: {
+              Authorization: `Token ${token}`,  
+              "Content-Type": "application/json",  
+            },
+            withCredentials: true, 
+          }
+        );
+        console.log("Fetched Username:", response.data);
+        setUsername(response.data.username);
+      } catch (error) {
+        console.error("Error during Axios GET:", error);
+      }
+    };
+    fetchUsername();
+  }, []);
+
+  const tabItems = [{title: "Notifications", component:<Notifications/>} , { title: "Projects", component: <ProjectTable setActiveTab={setActiveTab} projectsData={projectsData} username={username}/> }];
+  if (role === "Professor") tabItems.push({ title: "Requests", component: <RequestTable /> });
+  else tabItems.push({ title: "Inbox", component: <InboxTable /> });
+  if (role === "rspc_admin") tabItems.push({ title: "Add Project", component: <ProjectForm setActiveTab={setActiveTab} /> });
 
   const handleTabChange = (direction) => {
     const newIndex =
@@ -117,14 +187,7 @@ function ResearchProjects() {
         </Flex>
       </Flex>
 
-      {activeTab === "0" ? (
-        <ProjectTable setActiveTab={setActiveTab}/>
-      ) : activeTab === "1" ? (
-        role === "Professor" ? <RequestTable /> : <InboxTable />
-      ) : activeTab === "2" ? (
-        <ProjectForm setActiveTab={setActiveTab} />
-      ) : null}
-
+      {tabItems[parseInt(activeTab)].component}
     </>
   );
 }

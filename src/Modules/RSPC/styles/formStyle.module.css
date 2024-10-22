@@ -1,9 +1,10 @@
 .formContainer {
     max-width: 80vw; /* Increase width for two-column layout */
-    margin: auto;
+    margin: 3% auto;
     padding: 3% 5%;
-    border-radius: 8px;
-    background-color: #f8f8f8;
+    border-radius: 18px;
+    background-color: #ffffff;
+    border-left: 0.6rem solid #15ABFF;
   }
   
   .formTitle {

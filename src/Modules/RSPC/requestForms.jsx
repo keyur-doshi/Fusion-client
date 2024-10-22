@@ -1,24 +1,47 @@
 import axios from "axios";
 import PropTypes from "prop-types";
-import { SortAscending, CaretCircleLeft, CaretCircleRight, Eye, FileText } from "@phosphor-icons/react";
+import {
+  SortAscending,
+  CaretCircleLeft,
+  CaretCircleRight,
+  Eye,
+  FileText,
+} from "@phosphor-icons/react";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Tabs, Container, Loader, Badge, Button, Divider, Flex, Grid, Paper, Select, Text, CloseButton } from "@mantine/core";
+import {
+  Tabs,
+  Container,
+  Loader,
+  Badge,
+  Button,
+  Divider,
+  Flex,
+  Grid,
+  Paper,
+  Select,
+  Text,
+  CloseButton,
+} from "@mantine/core";
 import { useDispatch } from "react-redux";
-import classes from '../RSPC/styles/researchProjectsStyle.module.css';
+import classes from "../RSPC/styles/researchProjectsStyle.module.css";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import StaffForm from "./components/forms/staffForm.jsx";
 import ExpenditureForm from "./components/forms/expenditureForm.jsx";
+import { useLocation } from "react-router-dom";
+import Notifications from "./components/notifications.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function RequestForms() {
-  const [activeTab, setActiveTab] = useState("0");
+  const [activeTab, setActiveTab] = useState("1");
   const [sortedBy, setSortedBy] = useState("Most Recent");
   const [loading, setLoading] = useState(false);
   const [read_Loading, setRead_Loading] = useState(-1);
   const dispatch = useDispatch();
   const tabsListRef = useRef(null);
-  const tabItems = [{ title: "Staff" }, { title: "Expenditure" }];
+  const location = useLocation();
+  const { projectID } = location.state || {};
+  const tabItems = [{title: "Notifications", component:<Notifications/>} , { title: "Staff" , component: <StaffForm projectID={projectID} />}, { title: "Expenditure", component: <ExpenditureForm projectID={projectID} /> }];
 
   const handleTabChange = (direction) => {
     const newIndex =
@@ -107,12 +130,7 @@ function RequestForms() {
           />
         </Flex>
       </Flex>
-
-      {activeTab === "0" ? (
-        <StaffForm/>
-      ) : (
-        <ExpenditureForm/>
-      )}
+      {tabItems[parseInt(activeTab)].component}
     </>
   );
 }
