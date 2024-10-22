@@ -1,117 +1,234 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Button, TextInput, Select, Radio, NumberInput, Textarea, Paper, Title, Grid, Text } from "@mantine/core";
-import { Calendar, FileText, User } from "@phosphor-icons/react";
-import classes from '../../styles/formStyle.module.css';
+import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  TextInput,
+  Select,
+  Radio,
+  NumberInput,
+  Textarea,
+  Paper,
+  Title,
+  Grid,
+  Text,
+} from "@mantine/core";
+import { FileText, User } from "@phosphor-icons/react";
+import classes from "../../styles/formStyle.module.css";
+import { useForm } from "@mantine/form";
+import axios from "axios";
+import { host } from "../../../../routes/globalRoutes";
+import { useSelector } from "react-redux";
 
-const ExpenditureForm = () => {
-    const [purchase, setPurchase] = useState("");
-    const [mode, setMode] = useState("");
-    const [file, setFile] = useState(null);
-    const [item, setItem] = useState("");
-    const [lastdate, setLastdate] = useState("");
-    const [exptype, setExptype] = useState("");
-    const [desc, setDesc] = useState("");
-    const [cost, setCost] = useState(0);
+const ExpenditureForm = ({ projectID }) => {
+  const [file, setFile] = useState(null);
+  const username = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-    const handleSubmit=()=>{
-        navigate('/research');
-    }
+  function isDateBefore(inputDate) {
+    const [day, month, year] = inputDate.split("/");
+    const dateToCheck = new Date(year, month - 1, day);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    return dateToCheck < currentDate;
+  }
 
-    return (
-        <Paper padding="lg" shadow="s" className={classes.formContainer}>
-            <Title order={2} className={classes.formTitle}>Request Fund Allocation</Title>
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      exptype: "",
+      item: "",
+      cost: 0,
+      lastdate: "",
+      mode: "",
+      inventory: "",
+      desc: "",
+      file: null,
+    },
+    validate: {
+      // exptype: (value) =>
+      //   value === "" ? "Expenditure type is required" : null,
+      // item: (value) =>
+      //   value.trim() === "" ? "Requirement item is required" : null,
+      // cost: (value) =>
+      //   value <= 0 ? "Estimated cost must be greater than zero" : null,
+      // mode: (value) =>
+      //   value === "" ? "Mode of fulfillment is required" : null,
+      // lastdate: (value) =>
+      //   value!="" && isDateBefore(value) ? "Last date cannot be in the past" : null,
+      // inventory: (value) =>
+      //   value === "" ? "Future use scope is required" : null,
+    },
+  });
+  const handleSubmit = async (values) => {
+    console.log(username);
+   
+    // const token = localStorage.getItem("authToken");
+    // if (!token) return console.error("No authentication token found!");
 
-            <Grid gutter="xl">
+    // try {
+    //   const formData = new FormData();
+    //   if (values.lastdate == null) values.lastdate = ""; //Since Django gives error with null
+    //   formData.append("exptype", values.exptype);
+    //   formData.append("item", values.item);
+    //   formData.append("cost", values.cost);
+    //   formData.append("lastdate", values.lastdate);
+    //   formData.append("mode", values.mode);
+    //   formData.append("inventory", values.inventory);
+    //   formData.append("desc", values.desc);
+    //   formData.append("pid", projectID);
+    //   formData.append("approval", "Pending");
+    //   if (file) {
+    //     formData.append("file", file);
+    //   }
+    //   formData.forEach((value, key) => {
+    //     console.log(key, value);
+    //   });
+    //   const response = await axios.post(
+    //     `${host}/research_procedures/api/create-expenditure/`,
+    //     formData,
+    //     {
+    //       headers: {
+    //         Authorization: `Token ${token}`,
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //       withCredentials: true,
+    //     },
+    //   );
+    //   console.log(response.data);
+    //   navigate("/research");
+    // } catch (error) {
+    //   console.error("Error during Axios POST:", error);
+    // }
+  };
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Expenditure Type</Text>
-                    <Radio.Group
-                        value={exptype}
-                        onChange={setExptype}
-                    >
-                        <Radio value="tangible" label="Physical Item" />
-                        <Radio value="nontangible" label="Non-tangible Resource" />
-                    </Radio.Group>
-                </Grid.Col>
+  return (
+    <form onSubmit={form.onSubmit(handleSubmit)}>
+      <Paper
+        padding="lg"
+        shadow="s"
+        radius="md"
+        className={classes.formContainer}
+      >
+        <Title order={2} className={classes.formTitle}>
+          Request Fund Allocation
+        </Title>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Requirement</Text>
-                    <TextInput
-                        placeholder="Enter subject of expenditure"
-                        value={item}
-                        onChange={(event) => setItem(event.currentTarget.value)}
-                    />
-                </Grid.Col>
+        <Grid gutter="xl">
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Expenditure Type
+            </Text>
+            <Radio.Group {...form.getInputProps("exptype")}>
+              <Radio value="Tangible" label="Physical Item" />
+              <Radio value="Non-tangible" label="Non-tangible Resource" />
+            </Radio.Group>
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Estimated Cost</Text>
-                    <NumberInput
-                        placeholder="Enter estimated cost of expenditure"
-                        value={cost}
-                        onChange={setCost}
-                    />
-                </Grid.Col>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Requirement
+            </Text>
+            <TextInput
+              placeholder="Enter subject of expenditure"
+              {...form.getInputProps("item")}
+            />
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Latest Required By</Text>
-                    <input
-                        type="date"
-                        value={lastdate}
-                        onChange={(event) => setLastdate(event.currentTarget.value)}
-                        className={classes.dateInput}
-                    />
-                </Grid.Col>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Estimated Cost (in INR)
+            </Text>
+            <NumberInput
+              placeholder="Enter estimated cost of expenditure"
+              {...form.getInputProps("cost")}
+            />
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Select Mode Of Fulfillment</Text>
-                    <Select
-                        placeholder="Choose how the requirement is fulfilled"
-                        value={mode}
-                        onChange={setMode}
-                        data={["Online Purchase", "Offline Purchase", "Other"]}
-                        icon={<User />}
-                    />
-                </Grid.Col>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Latest Required By
+            </Text>
+            <input
+              type="date"
+              {...form.getInputProps("lastdate")}
+              className={classes.dateInput}
+            />
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Acquisition Details</Text>
-                    <TextInput
-                        placeholder="Enter relevant purchase details (purchase link, vendor contact, etc.) or acquisition information"
-                        value={purchase}
-                        onChange={(event) => setPurchase(event.currentTarget.value)}
-                    />
-                </Grid.Col>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Select Mode Of Fulfillment
+            </Text>
+            <Select
+              placeholder="Choose how the requirement is fulfilled"
+              {...form.getInputProps("mode")}
+              data={["Online Purchase", "Offline Purchase", "Other"]}
+              icon={<User />}
+            />
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Requirement Description</Text>
-                    <Textarea
-                        placeholder="Enter detailed description of why the said subject of expenditure is required in the project for future record-keeping"
-                        value={desc}
-                        onChange={(event) => setDesc(event.currentTarget.value)}
-                    />
-                </Grid.Col>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Future Use Scope For Inventory
+            </Text>
+            <Radio.Group {...form.getInputProps("inventory")}>
+              <Radio
+                value="yes"
+                label="Non-perishable (Can go to college inventory after use)"
+              />
+              <Radio value="no" label="Perishable (Cannot be used further)" />
+            </Radio.Group>
+          </Grid.Col>
 
-                <Grid.Col span={6}>
-                    <Text size="lg" weight={500} className={classes.fieldLabel}>Quotation And Billing</Text>
-                    <div className={classes.fileInputContainer}>
-                        <Button variant="outline" color="#15ABFF" size="md" component="label" className={classes.fileInputButton} style={{ borderRadius: '18px' }}>
-                            <FileText size={26} style={{ marginRight: '3px' }} />
-                            Choose File
-                            <input type="file" hidden onChange={(event) => setFile(event.currentTarget.files[0])} />
-                        </Button>
-                        {file && <span className={classes.fileName}>{file.name}</span>}
-                    </div>
-                </Grid.Col>
-            </Grid>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Purchase Details And Requirement Description
+            </Text>
+            <Textarea
+              placeholder="Provide purchase link, vendor contact, fund receiver, etc. along with detailed description of why the said subject of expenditure is required in the project for future record-keeping"
+              {...form.getInputProps("desc")}
+            />
+          </Grid.Col>
 
-            <div className={classes.submitButtonContainer}>
-                <Button onClick={handleSubmit} size="lg" type="submit" color="cyan" style={{ borderRadius: '18px' }}>Submit</Button>
+          <Grid.Col span={6}>
+            <Text size="lg" weight={500} className={classes.fieldLabel}>
+              Quotation And Billing
+            </Text>
+            <div className={classes.fileInputContainer}>
+              <Button
+                variant="outline"
+                color="#15ABFF"
+                size="md"
+                component="label"
+                className={classes.fileInputButton}
+                style={{ borderRadius: "18px" }}
+              >
+                <FileText size={26} style={{ marginRight: "3px" }} />
+                Choose File
+                <input
+                  type="file"
+                  hidden
+                  onChange={(event) => setFile(event.currentTarget.files[0])}
+                />
+              </Button>
+              {file && <span className={classes.fileName}>{file.name}</span>}
             </div>
+          </Grid.Col>
+        </Grid>
 
-        </Paper>
-    );
+        <div className={classes.submitButtonContainer}>
+          <Button
+            size="lg"
+            type="submit"
+            color="#15ABFF"
+            style={{ borderRadius: "18px" }}
+          >
+            Submit
+          </Button>
+        </div>
+      </Paper>
+    </form>
+  );
 };
 
 export default ExpenditureForm;

@@ -31,7 +31,7 @@ export default function App() {
           path="/dashboard"
           element={
             <Layout>
-              <Dashboard/>
+              <Dashboard />
             </Layout>
           }
         />
@@ -39,7 +39,7 @@ export default function App() {
           path="/research"
           element={
             <Layout>
-              <ResearchProjects/>
+              <ResearchProjects />
             </Layout>
           }
         />
@@ -47,7 +47,7 @@ export default function App() {
           path="/research/forms"
           element={
             <Layout>
-              <RequestForms/>
+              <RequestForms />
             </Layout>
           }
         />

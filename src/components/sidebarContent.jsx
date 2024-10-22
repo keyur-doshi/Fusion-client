@@ -107,7 +107,12 @@ const Modules = [
     icon: <DepartmentIcon size={18} />,
     url: "/",
   },
-  { label: "Research Projects", id: "rspc", icon: <ResearchIcon size={18} />, url: "/research" },
+  {
+    label: "Research Projects",
+    id: "rspc",
+    icon: <ResearchIcon size={18} />,
+    url: "/research",
+  },
   {
     label: "Purchase and Store",
     id: "purchase_and_store",
