@@ -11,16 +11,22 @@ import {
   Title,
   Grid,
   Text,
+  Alert,
 } from "@mantine/core";
-import { FileText, User } from "@phosphor-icons/react";
+import { FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
 import classes from "../../styles/formStyle.module.css";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import { host } from "../../../../routes/globalRoutes";
+import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
+import { useSelector } from "react-redux";
 
 const StaffForm = ({ projectID }) => {
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const role = useSelector((state) => state.user.role);
+  const [successAlertVisible, setSuccessAlertVisible] = useState(false);
+  const [failureAlertVisible, setFailureAlertVisible] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -48,7 +54,7 @@ const StaffForm = ({ projectID }) => {
       stipend: (value) =>
         value < 0 ? "Stipend must not be negative" : null,
       lastdate: (value, values) =>
-        value !== '' && values.startdate!='' && value < values.startdate ? 'End date cannot be before start date' : null,
+        value !== '' && values.startdate != '' && value < values.startdate ? 'End date cannot be before start date' : null,
 
     },
   });
@@ -56,7 +62,7 @@ const StaffForm = ({ projectID }) => {
   const handleSubmit = async (values) => {
     const token = localStorage.getItem("authToken");
     if (!token) return console.error("No authentication token found!");
-
+    console.log("hello");
     try {
       const formData = new FormData();
       formData.append("person", values.person);
@@ -69,13 +75,13 @@ const StaffForm = ({ projectID }) => {
       formData.append("lastdate", values.lastdate);
       formData.append("description", values.description);
       formData.append("pid", projectID);
-      formData.append("approval","Pending");
+      formData.append("approval", "Pending");
       if (file) {
         formData.append("file", file);
       }
 
       const response = await axios.post(
-        `${host}/research_procedures/api/create-staff/`,
+        `${host}/research_procedures/api/create-staff/?u_d=${role}&r=${rspc_admin}&r_d=${rspc_admin_designation}`,
         formData,
         {
           headers: {
@@ -86,13 +92,23 @@ const StaffForm = ({ projectID }) => {
         }
       );
       console.log(response.data);
-      navigate("/research");
+      setSuccessAlertVisible(true); 
+      setTimeout(() => {
+        setSuccessAlertVisible(false);
+        navigate("/research");
+      }, 2500);
+     
     } catch (error) {
       console.error("Error during Axios POST:", error);
+      setFailureAlertVisible(true);
+      setTimeout(() => {
+        setFailureAlertVisible(false);
+      }, 2500);
     }
   };
 
   return (
+    <>
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Paper padding="lg" shadow="s" className={classes.formContainer}>
         <Title order={2} className={classes.formTitle}>
@@ -241,6 +257,23 @@ const StaffForm = ({ projectID }) => {
         </div>
       </Paper>
     </form>
+
+    {(successAlertVisible || failureAlertVisible) && (
+        <div className={classes.overlay}>
+          <Alert
+            variant="filled"
+            color={successAlertVisible ? "#85B5D9" : "red"}
+            title={successAlertVisible ? "Form Submission Successful" : "Form Submission Failed"}
+            icon={successAlertVisible ? <ThumbsUp size={96} /> : <ThumbsDown size={96} />}
+            className={classes.alertBox}
+          >
+            {successAlertVisible
+              ? "The form has been successfully submitted! Your request will be processed soon!"
+              : "The form details could not be saved! Please verify the filled details and submit the form again."}
+          </Alert>
+        </div>
+      )}
+    </>
   );
 };
 

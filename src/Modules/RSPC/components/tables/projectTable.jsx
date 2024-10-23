@@ -2,10 +2,10 @@ import cx from "clsx";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Badge, ScrollArea } from "@mantine/core";
+import { Table, Button, Badge, ScrollArea, Text } from "@mantine/core";
 import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
-import ProjectModal from "../projectModal";
+import ProjectModal from "../modals/projectModal";
 
 function ProjectTable({ setActiveTab, projectsData, username}) {
   const [scrolled, setScrolled] = useState(false);
@@ -107,7 +107,11 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
+          {projectsData ? (
+            <Table.Tbody>{rows}</Table.Tbody>
+          ) : (
+            <Text color="red" size="xl" weight={700} align="center">Unable to load project details</Text>
+          )}
         </Table>
       </ScrollArea>
       {role === "rspc_admin" && (
@@ -140,25 +144,3 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
 }
 
 export default ProjectTable;
-
-//       {/* Modal to display project details */}
-//       <Modal
-//         opened={opened}
-//         onClose={() => setOpened(false)}
-//         title="Project Details"
-//         centered
-//       >
-//         {selectedProject && (
-//           <div>
-//             <Text><strong>Project Name: </strong>{selectedProject.name}</Text>
-//             <Text><strong>Status: </strong>{selectedProject.status}</Text>
-//             <Text><strong>Agency: </strong>{selectedProject.agency}</Text>
-//             {/* Add any additional details required from ProjectForm */}
-//           </div>
-//         )}
-//       </Modal>
-//     </div>
-//   );
-// }
-
-// export default ProjectTable;

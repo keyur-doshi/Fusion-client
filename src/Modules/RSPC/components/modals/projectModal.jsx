@@ -9,13 +9,16 @@ import {
   Loader,
   Container,
   Divider,
+  Grid,
+  GridCol,
 } from "@mantine/core";
 import { FileText, EyeSlash } from "@phosphor-icons/react";
 import axios from "axios";
-import { host } from "../../../routes/globalRoutes";
+import { host } from "../../../../routes/globalRoutes";
 
 function ProjectModal({ opened, onClose, projectData }) {
   const [loading, setLoading] = useState(false);
+  const [fetched,setFetched]=useState(true);
 
   const [staffDetails, setStaffDetails] = useState([]);
   useEffect(() => {
@@ -41,6 +44,8 @@ function ProjectModal({ opened, onClose, projectData }) {
           setLoading(false);
         } catch (error) {
           console.error("Error during Axios GET:", error);
+          setLoading(false);
+          setFetched(false);
         }
       };
       fetchStaff();
@@ -71,6 +76,8 @@ function ProjectModal({ opened, onClose, projectData }) {
           setLoading(false);
         } catch (error) {
           console.error("Error during Axios GET:", error);
+          setLoading(false);
+          setFetched(false);
         }
       };
       fetchExpenditure();
@@ -88,10 +95,10 @@ function ProjectModal({ opened, onClose, projectData }) {
 
   const staffRows = staffDetails.map((staff, index) => (
     <tr key={index}>
-      <td>{staff.name}</td>
-      <td>{staff.role}</td>
-      <td>{staff.contact}</td>
-      <td>{staff.department}</td>
+      <td>{staff.person}</td>
+      <td>{staff.designation}</td>
+      <td>{staff.qualification}</td>
+      <td>{staff.dept}</td>
     </tr>
   ));
   const expenditureRows = expenditureDetails.map((item, index) => (
@@ -111,24 +118,83 @@ function ProjectModal({ opened, onClose, projectData }) {
           Loader size="lg" />
         </Container>
 
-      ) : projectData ? (
+      ) : (projectData && fetched) ? (
         <>
           <Group position="apart" style={{ marginBottom: 20 }}>
             <Text size="32px" weight={700}>{projectData.name}</Text>
             <Badge color={badgeColor[projectData.status]} size="lg" style={{ fontSize: '18px' }}>{projectData.status}</Badge>
           </Group>
 
-          <Text size="md" style={{ marginBottom: 20 }}>
-            {projectData.description}
+          <Grid gutter="xs" style={{ marginBottom: 20 }}>
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Principal Investigator:</strong> {projectData.pi_name} ({projectData.pi_id})
           </Text>
+        </GridCol>
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Sponsoring Agency:</strong> {projectData.sponsored_agency}
+          </Text>
+        </GridCol>
+
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Department:</strong> {projectData.dept}
+          </Text>
+        </GridCol>
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Project Type:</strong> {projectData.type}
+          </Text>
+        </GridCol>
+
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Start Date:</strong> {new Date(projectData.start_date).toLocaleDateString()}
+          </Text>
+        </GridCol>
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Deadline:</strong> {new Date(projectData.deadline).toLocaleDateString()}
+          </Text>
+        </GridCol>
+
+        {projectData.finish_date && (
+          <GridCol span={6}>
+            <Text size="xl">
+              <strong style={{ color: 'blue' }}>Finish Date:</strong> {new Date(projectData.finish_date).toLocaleDateString()}
+            </Text>
+          </GridCol>
+        )}
+
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Total Budget:</strong> ₹{projectData.total_budget.toLocaleString()}
+          </Text>
+        </GridCol>
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Remaining Budget:</strong> ₹{projectData.rem_budget.toLocaleString()}
+          </Text>
+        </GridCol>
+
+        <GridCol span={6}>
+          <Text size="xl">
+            <strong style={{ color: 'blue' }}>Category:</strong> {projectData.category}
+          </Text>
+        </GridCol>
+      </Grid>
+      <Text size="md" style={{ marginBottom: 20 }}>
+        {projectData.description}
+      </Text>
 
           <Divider my="lg" label={<Text size="xl" weight={600}>Project Staff</Text>} labelPosition="center" />
           <Table highlightOnHover>
             <thead style={{ textAlign: 'left' }}>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
-                <th>Contact</th>
+                <th>Designation</th>
+                <th>Qualification</th>
                 <th>Department</th>
               </tr>
             </thead>
@@ -160,7 +226,7 @@ function ProjectModal({ opened, onClose, projectData }) {
           </div>
         </>
       ) : (
-        <Text color="red">Failed to load project details.</Text>
+        <Text color="red" size="xl" weight={700} align="center">Failed to load project details</Text>
       )}
     </Modal>
   );
