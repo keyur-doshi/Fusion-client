@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import classes from "../RSPC/styles/researchProjectsStyle.module.css";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import ProjectTable from "./components/tables/projectTable.jsx";
-import RequestTable from "./components/tables/inboxTable.jsx";
+import RequestTable from "./components/tables/requestTable.jsx";
 import InboxTable from "./components/tables/inboxTable.jsx";
 import ProjectForm from "./components/forms/projectForm.jsx";
 import Notifications from "./components/notifications.jsx";
@@ -95,8 +95,8 @@ function ResearchProjects() {
   }, []);
 
   const tabItems = [{title: "Notifications", component:<Notifications/>} , { title: "Projects", component: <ProjectTable setActiveTab={setActiveTab} projectsData={projectsData} username={username}/> }];
-  if (role === "Professor") tabItems.push({ title: "Requests", component: <RequestTable /> });
-  else tabItems.push({ title: "Inbox", component: <InboxTable /> });
+  if (role === "Professor") tabItems.push({ title: "Requests", component: <RequestTable username={username}/> });
+  else tabItems.push({ title: "Inbox", component: <InboxTable username={username} /> });
   if (role === "rspc_admin") tabItems.push({ title: "Add Project", component: <ProjectForm setActiveTab={setActiveTab} /> });
 
   const handleTabChange = (direction) => {
