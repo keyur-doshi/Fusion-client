@@ -13,7 +13,7 @@ import {
   Text,
   Alert,
 } from "@mantine/core";
-import { Calendar, FileText, User } from "@phosphor-icons/react";
+import { Calendar, FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
 import classes from "../../styles/formStyle.module.css";
 import { useForm } from "@mantine/form";
 import axios from "axios";
@@ -96,7 +96,7 @@ const ProjectForm = ({ setActiveTab }) => {
       setSuccessAlertVisible(true);
       setTimeout(() => {
         setSuccessAlertVisible(false);
-        setActiveTab("1");
+        navigate("/research");
       }, 2500);
     } catch (error) {
       console.error("Error during Axios POST:", error);

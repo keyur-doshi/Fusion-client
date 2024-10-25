@@ -41,7 +41,14 @@ function RequestForms() {
   const tabsListRef = useRef(null);
   const location = useLocation();
   const { projectID } = location.state || {};
-  const tabItems = [{title: "Notifications", component:<Notifications/>} , { title: "Staff" , component: <StaffForm projectID={projectID} />}, { title: "Expenditure", component: <ExpenditureForm projectID={projectID} /> }];
+  const tabItems = [
+    { title: "Notifications", component: <Notifications /> },
+    { title: "Staff", component: <StaffForm projectID={projectID} /> },
+    {
+      title: "Expenditure",
+      component: <ExpenditureForm projectID={projectID} />,
+    },
+  ];
 
   const handleTabChange = (direction) => {
     const newIndex =

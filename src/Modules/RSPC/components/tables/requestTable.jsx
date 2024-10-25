@@ -1,23 +1,41 @@
 import cx from "clsx";
 import { useState, useEffect } from "react";
-import { Table, Container, Text, Loader, Button, Badge, ScrollArea } from "@mantine/core";
+import {
+  Table,
+  Container,
+  Text,
+  Loader,
+  Button,
+  Badge,
+  ScrollArea,
+} from "@mantine/core";
 import classes from "../../styles/tableStyle.module.css";
-import { DownloadSimple } from "@phosphor-icons/react";
+import { DownloadSimple, Eye } from "@phosphor-icons/react";
 import { host } from "../../../../routes/globalRoutes";
 import axios from "axios";
+import FileViewModal from "../modals/fileViewModal";
 
-const data = [
-  { status: "Pending", subject: "Staff for Spacey", date: "10/10/2024" },
-  { status: "Approved", subject: "Funds for Starry", date: "27/09/2024" },
-  { status: "Rejected", subject: "Update for Galaxy", date: "31/08/2024" },
-];
-const badgeColor = { OnGoing: "#85B5D9", Completed: "green", Terminated: "red", Approved: "green", Pending: "#85B5D9", Rejected: "red", };
+const badgeColor = {
+  OnGoing: "#85B5D9",
+  Completed: "green",
+  Terminated: "red",
+  Approved: "green",
+  Pending: "#85B5D9",
+  Rejected: "red",
+};
 
 function RequestTable({ username }) {
   const [scrolled, setScrolled] = useState(false);
   const [PIDs, setPIDs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [fetched,setFetched]=useState(true);
+  const [fetched, setFetched] = useState(true);
+
+  const [selectedFileID, setSelectedFileID] = useState(null);
+  const [modalOpened, setModalOpened] = useState(false);
+  const handleViewClick = (file) => {
+    setSelectedFileID(file);
+    setModalOpened(true);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -33,7 +51,7 @@ function RequestTable({ username }) {
               "Content-Type": "application/json",
             },
             withCredentials: true,
-          }
+          },
         );
         console.log("Fetched PIDs:", response.data);
         setPIDs(response.data);
@@ -66,27 +84,30 @@ function RequestTable({ username }) {
                   "Content-Type": "application/json",
                 },
                 withCredentials: true,
-              }
-            )
+              },
+            ),
           );
 
           const fetchStaffPromises = PIDs.map((pid) =>
-            axios.get(
-              `${host}/research_procedures/api/get-staff/?pid=${pid}`,
-              {
-                headers: {
-                  Authorization: `Token ${token}`,
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
-              }
-            )
+            axios.get(`${host}/research_procedures/api/get-staff/?pid=${pid}`, {
+              headers: {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
+            }),
           );
-          const expenditureResponses = await Promise.all(fetchExpenditurePromises);
+          const expenditureResponses = await Promise.all(
+            fetchExpenditurePromises,
+          );
           const staffResponses = await Promise.all(fetchStaffPromises);
 
-          setExpenditureRequests((expenditureResponses.map((response) => response.data)).flat());
-          setStaffRequests((staffResponses.map((response) => response.data)).flat());
+          setExpenditureRequests(
+            expenditureResponses.map((response) => response.data).flat(),
+          );
+          setStaffRequests(
+            staffResponses.map((response) => response.data).flat(),
+          );
           setLoading(false);
         } catch (error) {
           console.error("Error during fetching details:", error);
@@ -101,7 +122,7 @@ function RequestTable({ username }) {
 
   useEffect(() => {
     console.log(staffRequests);
-  }, [staffRequests])
+  }, [staffRequests]);
 
   const expenditureRows = expenditureRequests.map((row, index) => (
     <Table.Tr key={index}>
@@ -115,7 +136,16 @@ function RequestTable({ username }) {
       <Table.Td>{row.item}</Table.Td>
       <Table.Td>{row.date}</Table.Td>
       <Table.Td>
-        <DownloadSimple size={32} weight="bold" />
+        <Button
+          onClick={() => handleViewClick(row.file_id)}
+          variant="outline"
+          color="#15ABFF"
+          size="xs"
+          style={{ borderRadius: "18px" }}
+        >
+          <Eye size={26} style={{ margin: "3px" }} />
+          View
+        </Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -131,8 +161,18 @@ function RequestTable({ username }) {
       <Table.Td>Staff</Table.Td>
       <Table.Td>{row.person}</Table.Td>
       <Table.Td>{row.date}</Table.Td>
+      {/* TODO */}
       <Table.Td>
-        <DownloadSimple size={32} weight="bold" />
+        <Button
+          onClick={() => handleViewClick(row.file_id)}
+          variant="outline"
+          color="#15ABFF"
+          size="xs"
+          style={{ borderRadius: "18px" }}
+        >
+          <Eye size={26} style={{ margin: "3px" }} />
+          View
+        </Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -152,7 +192,9 @@ function RequestTable({ username }) {
               <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
               <Table.Th className={classes["header-cell"]}>Type</Table.Th>
               <Table.Th className={classes["header-cell"]}> Subject</Table.Th>
-              <Table.Th className={classes["header-cell"]}>Last Update</Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Last Update
+              </Table.Th>
               <Table.Th className={classes["header-cell"]}>File</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -160,18 +202,24 @@ function RequestTable({ username }) {
             <Container py="xl">
               <Loader size="lg" />
             </Container>
-
           ) : fetched ? (
             <>
               <Table.Tbody>{expenditureRows}</Table.Tbody>
               <Table.Tbody>{staffRows}</Table.Tbody>
             </>
           ) : (
-            <Text color="red" size="xl" weight={700} align="center">Failed to load project details</Text>
+            <Text color="red" size="xl" weight={700} align="center">
+              Failed to load project details
+            </Text>
           )}
-
         </Table>
       </ScrollArea>
+      <FileViewModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        file={selectedFileID}
+        role="Professor"
+      />
     </div>
   );
 }

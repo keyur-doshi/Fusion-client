@@ -6,8 +6,9 @@ import { Table, Button, Badge, ScrollArea, Text } from "@mantine/core";
 import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
 import ProjectModal from "../modals/projectModal";
+import { rspc_admin_designation } from "../../helpers/designations";
 
-function ProjectTable({ setActiveTab, projectsData, username}) {
+function ProjectTable({ setActiveTab, projectsData, username }) {
   const [scrolled, setScrolled] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -20,7 +21,7 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
   };
 
   const handleAddClick = () => {
-    setActiveTab("2");
+    setActiveTab("3");
   };
 
   const handleViewClick = (row) => {
@@ -37,47 +38,49 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
     Rejected: "red",
   };
 
-  const rows = projectsData.map((row, index) => (
-    (role!=="Professor" || row.pi_id===username) &&
-    (<Table.Tr key={index}>
-      <Table.Td>
-        <Badge color={badgeColor[row.status]} size="lg">
-          {row.status}
-        </Badge>
-      </Table.Td>
-      <Table.Td>{row.name}</Table.Td>
-      <Table.Td>{row.sponsored_agency}</Table.Td>
+  const rows = projectsData.map(
+    (row, index) =>
+      (role !== "Professor" || row.pi_id === username) && (
+        <Table.Tr key={index}>
+          <Table.Td>
+            <Badge color={badgeColor[row.status]} size="lg">
+              {row.status}
+            </Badge>
+          </Table.Td>
+          <Table.Td>{row.name}</Table.Td>
+          <Table.Td>{row.pi_name}</Table.Td>
+          <Table.Td>{row.sponsored_agency}</Table.Td>
 
-      {role === "Professor" && (
-        <Table.Td>
-          <Button
-            onClick={() => handleRequestClick(row.pid)}
-            variant="outline"
-            color="#15ABFF"
-            size="xs"
-            style={{ borderRadius: "18px" }}
-          >
-            <FileText size={26} style={{ marginRight: "3px" }} />
-            Request
-          </Button>
-        </Table.Td>
-      )}
+          {role === "Professor" && (
+            <Table.Td>
+              <Button
+                onClick={() => handleRequestClick(row.pid)}
+                variant="outline"
+                color="#15ABFF"
+                size="xs"
+                style={{ borderRadius: "18px" }}
+              >
+                <FileText size={26} style={{ marginRight: "3px" }} />
+                Request
+              </Button>
+            </Table.Td>
+          )}
 
-      <Table.Td>
-        <Button
-          onClick={() => handleViewClick(row)}
-          variant="outline"
-          color="#15ABFF"
-          size="xs"
-          style={{ borderRadius: "18px" }}
-        >
-          <Eye size={26} style={{ margin: "3px" }} />
-          View
-        </Button>
-      </Table.Td>
-    </Table.Tr>
-    )
-  ));
+          <Table.Td>
+            <Button
+              onClick={() => handleViewClick(row)}
+              variant="outline"
+              color="#15ABFF"
+              size="xs"
+              style={{ borderRadius: "18px" }}
+            >
+              <Eye size={26} style={{ margin: "3px" }} />
+              View
+            </Button>
+          </Table.Td>
+        </Table.Tr>
+      ),
+  );
 
   return (
     <div style={{ padding: "3% 5%" }}>
@@ -95,6 +98,9 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
                 Project Name
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>
+                Project Lead
+              </Table.Th>
+              <Table.Th className={classes["header-cell"]}>
                 Sponsor Agency
               </Table.Th>
               {role === "Professor" && (
@@ -110,11 +116,13 @@ function ProjectTable({ setActiveTab, projectsData, username}) {
           {projectsData ? (
             <Table.Tbody>{rows}</Table.Tbody>
           ) : (
-            <Text color="red" size="xl" weight={700} align="center">Unable to load project details</Text>
+            <Text color="red" size="xl" weight={700} align="center">
+              Unable to load project details
+            </Text>
           )}
         </Table>
       </ScrollArea>
-      {role === "rspc_admin" && (
+      {role === rspc_admin_designation && (
         <div
           style={{
             display: "flex",
