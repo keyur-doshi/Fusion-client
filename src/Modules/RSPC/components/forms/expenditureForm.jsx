@@ -14,11 +14,11 @@ import {
   Alert,
 } from "@mantine/core";
 import { FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
-import classes from "../../styles/formStyle.module.css";
+import { useSelector } from "react-redux";
 import { useForm } from "@mantine/form";
 import axios from "axios";
+import classes from "../../styles/formStyle.module.css";
 import { host } from "../../../../routes/globalRoutes";
-import { useSelector } from "react-redux";
 import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 
 const ExpenditureForm = ({ projectID }) => {
@@ -58,7 +58,9 @@ const ExpenditureForm = ({ projectID }) => {
       mode: (value) =>
         value === "" ? "Mode of fulfillment is required" : null,
       lastdate: (value) =>
-        value != "" && isDateBefore(value) ? "Last date cannot be in the past" : null,
+        value != "" && isDateBefore(value)
+          ? "Last date cannot be in the past"
+          : null,
       inventory: (value) =>
         value === "" ? "Future use scope is required" : null,
     },
@@ -184,10 +186,10 @@ const ExpenditureForm = ({ projectID }) => {
               </Text>
               <Radio.Group {...form.getInputProps("inventory")}>
                 <Radio
-                  value="yes"
+                  value="Yes"
                   label="Non-perishable (Can go to college inventory after use)"
                 />
-                <Radio value="no" label="Perishable (Cannot be used further)" />
+                <Radio value="No" label="Perishable (Cannot be used further)" />
               </Radio.Group>
             </Grid.Col>
 
@@ -245,8 +247,18 @@ const ExpenditureForm = ({ projectID }) => {
           <Alert
             variant="filled"
             color={successAlertVisible ? "#85B5D9" : "red"}
-            title={successAlertVisible ? "Form Submission Successful" : "Form Submission Failed"}
-            icon={successAlertVisible ? <ThumbsUp size={96} /> : <ThumbsDown size={96} />}
+            title={
+              successAlertVisible
+                ? "Form Submission Successful"
+                : "Form Submission Failed"
+            }
+            icon={
+              successAlertVisible ? (
+                <ThumbsUp size={96} />
+              ) : (
+                <ThumbsDown size={96} />
+              )
+            }
             className={classes.alertBox}
           >
             {successAlertVisible

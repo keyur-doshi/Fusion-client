@@ -31,12 +31,13 @@ import InboxTable from "./components/tables/inboxTable.jsx";
 import ProjectForm from "./components/forms/projectForm.jsx";
 import Notifications from "./components/notifications.jsx";
 import { host } from "../../routes/globalRoutes/index.jsx";
+import { rspc_admin_designation } from "./helpers/designations.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function ResearchProjects() {
   const role = useSelector((state) => state.user.role);
-  const [username,setUsername]=useState("");
+  const [username, setUsername] = useState("");
   const [projectsData, setProjectsData] = useState([]);
   const [activeTab, setActiveTab] = useState("1");
   const [sortedBy, setSortedBy] = useState("Most Recent");
@@ -54,14 +55,14 @@ function ResearchProjects() {
           `${host}/research_procedures/api/get-projects/`,
           {
             headers: {
-              Authorization: `Token ${token}`,  
-              "Content-Type": "application/json",  
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
             },
-            withCredentials: true,  // Include credentials if necessary
-          }
+            withCredentials: true, // Include credentials if necessary
+          },
         );
         console.log("Fetched Projects:", response.data);
-        setProjectsData(response.data);  // Store the fetched projects data
+        setProjectsData(response.data); // Store the fetched projects data
       } catch (error) {
         console.error("Error during Axios GET:", error);
       }
@@ -79,11 +80,11 @@ function ResearchProjects() {
           `${host}/research_procedures/api/get-user/`,
           {
             headers: {
-              Authorization: `Token ${token}`,  
-              "Content-Type": "application/json",  
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
             },
-            withCredentials: true, 
-          }
+            withCredentials: true,
+          },
         );
         console.log("Fetched Username:", response.data);
         setUsername(response.data.username);
@@ -94,10 +95,34 @@ function ResearchProjects() {
     fetchUsername();
   }, []);
 
-  const tabItems = [{title: "Notifications", component:<Notifications/>} , { title: "Projects", component: <ProjectTable setActiveTab={setActiveTab} projectsData={projectsData} username={username}/> }];
-  if (role === "Professor") tabItems.push({ title: "Requests", component: <RequestTable username={username}/> });
-  else tabItems.push({ title: "Inbox", component: <InboxTable username={username} /> });
-  if (role === "rspc_admin") tabItems.push({ title: "Add Project", component: <ProjectForm setActiveTab={setActiveTab} /> });
+  const tabItems = [
+    { title: "Notifications", component: <Notifications /> },
+    {
+      title: "Projects",
+      component: (
+        <ProjectTable
+          setActiveTab={setActiveTab}
+          projectsData={projectsData}
+          username={username}
+        />
+      ),
+    },
+  ];
+  if (role === "Professor")
+    tabItems.push({
+      title: "Requests",
+      component: <RequestTable username={username} />,
+    });
+  else
+    tabItems.push({
+      title: "Inbox",
+      component: <InboxTable username={username} />,
+    });
+  if (role === rspc_admin_designation)
+    tabItems.push({
+      title: "Add Project",
+      component: <ProjectForm setActiveTab={setActiveTab} />,
+    });
 
   const handleTabChange = (direction) => {
     const newIndex =
