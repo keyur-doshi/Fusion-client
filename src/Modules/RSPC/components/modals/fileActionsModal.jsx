@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Button,
@@ -16,11 +16,31 @@ import {
   ThumbsDown,
   EyeSlash,
 } from "@phosphor-icons/react";
+import { rspc_admin, dean_rspc, director } from "../../helpers/designations";
 
 function FileActionsModal({ opened, onClose, file, username }) {
   const [role, setRole] = useState("");
   const [subject, setSubject] = useState("");
-
+  const [approveButtonDisabled, setApproveButtonDisabled] = useState(false);
+  const [rejectButtonDisabled, setRejectButtonDisabled] = useState(false);
+  const [forwardButtonDisabled, setForwardButtonDisabled] = useState(false);
+  const [forwardList,setForwardList]=useState([]);
+  useEffect(()=>{
+    if(username==rspc_admin) {
+      setApproveButtonDisabled(true);
+      setRejectButtonDisabled(true);
+      setForwardList(["Dean RSPC", "Director"]);
+    }
+    else if(username==dean_rspc) {
+      setForwardList(["Director"]);
+      if(file.file_extra_JSON.request_type=="Expenditure"){
+        setApproveButtonDisabled(true);
+      }
+    }
+    else if(username==director){
+      setForwardButtonDisabled(true);
+    }
+  },[username])
   const handleSubmit = () => {
     // Handle form submit logic
     console.log("Role:", role);
@@ -66,11 +86,11 @@ function FileActionsModal({ opened, onClose, file, username }) {
 
               {/* Buttons under the Left column */}
               <Group position="left" style={{ marginTop: "20px" }}>
-                <Button color="green">
+                <Button color="green" disabled={approveButtonDisabled}>
                   <ThumbsUp size={26} style={{ marginRight: "3px" }} />
                   Approve
                 </Button>
-                <Button color="red" onClick={onClose} variant="outline">
+                <Button color="red" onClick={onClose} variant="outline" disabled={rejectButtonDisabled}>
                   <ThumbsDown size={26} style={{ marginRight: "3px" }} />
                   Reject
                 </Button>
@@ -86,8 +106,9 @@ function FileActionsModal({ opened, onClose, file, username }) {
                 Select Recipient
               </Text>
               <Select
+                disabled={username==director}
                 placeholder="Choose a role"
-                data={["Dean", "Director", "Administrator"]}
+                data={forwardList}
                 value={role}
                 onChange={setRole}
                 style={{ marginBottom: "20px" }}
@@ -97,6 +118,7 @@ function FileActionsModal({ opened, onClose, file, username }) {
                 Add Remarks
               </Text>
               <TextInput
+                disabled={username==director}
                 placeholder="Enter additional comments for the recipient"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -108,6 +130,7 @@ function FileActionsModal({ opened, onClose, file, username }) {
                 onClick={handleSubmit}
                 fullWidth
                 style={{ marginTop: "20px" }}
+                disabled={forwardButtonDisabled}
               >
                 Forward File
               </Button>
