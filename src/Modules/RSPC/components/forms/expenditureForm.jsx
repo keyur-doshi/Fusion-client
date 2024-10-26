@@ -68,7 +68,6 @@ const ExpenditureForm = ({ projectID }) => {
   const handleSubmit = async (values) => {
     const token = localStorage.getItem("authToken");
     if (!token) return console.error("No authentication token found!");
-
     try {
       const formData = new FormData();
       if (values.lastdate == null) values.lastdate = ""; //Since Django gives error with null

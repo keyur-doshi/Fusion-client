@@ -132,8 +132,8 @@ function RequestTable({ username }) {
         </Badge>
       </Table.Td>
       <Table.Td>{row.pid}</Table.Td>
-      <Table.Td>Expenditure</Table.Td>
       <Table.Td>{row.item}</Table.Td>
+      <Table.Td>Expenditure</Table.Td>
       <Table.Td>{row.date}</Table.Td>
       <Table.Td>
         <Button
@@ -158,10 +158,9 @@ function RequestTable({ username }) {
         </Badge>
       </Table.Td>
       <Table.Td>{row.pid}</Table.Td>
-      <Table.Td>Staff</Table.Td>
       <Table.Td>{row.person}</Table.Td>
+      <Table.Td>Staff</Table.Td>
       <Table.Td>{row.date}</Table.Td>
-      {/* TODO */}
       <Table.Td>
         <Button
           onClick={() => handleViewClick(row.file_id)}
@@ -190,28 +189,38 @@ function RequestTable({ username }) {
             <Table.Tr>
               <Table.Th className={classes["header-cell"]}>Status</Table.Th>
               <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
-              <Table.Th className={classes["header-cell"]}>Type</Table.Th>
               <Table.Th className={classes["header-cell"]}> Subject</Table.Th>
+              <Table.Th className={classes["header-cell"]}>Type</Table.Th>
               <Table.Th className={classes["header-cell"]}>
                 Last Update
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>File</Table.Th>
             </Table.Tr>
           </Table.Thead>
+          <Table.Tbody>
           {loading ? (
-            <Container py="xl">
-              <Loader size="lg" />
-            </Container>
+           <Table.Tr>
+           <Table.Td colSpan="6">
+             <Container py="xl">
+               <Loader size="lg" />
+             </Container>
+           </Table.Td>
+         </Table.Tr>
           ) : fetched ? (
             <>
-              <Table.Tbody>{expenditureRows}</Table.Tbody>
-              <Table.Tbody>{staffRows}</Table.Tbody>
+              {expenditureRows}
+              {staffRows}
             </>
           ) : (
-            <Text color="red" size="xl" weight={700} align="center">
-              Failed to load project details
-            </Text>
+            <Table.Tr>
+                <Table.Td colSpan="6" align="center">
+                  <Text color="red" size="xl" weight={700} align="center">
+                    Failed to load project details
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
           )}
+          </Table.Tbody>
         </Table>
       </ScrollArea>
       <FileViewModal

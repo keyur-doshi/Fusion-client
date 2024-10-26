@@ -130,17 +130,27 @@ function InboxTable({ username }) {
               <Table.Th className={classes["header-cell"]}>Actions</Table.Th>
             </Table.Tr>
           </Table.Thead>
+          <Table.Tbody>
           {loading ? (
-            <Container py="xl">
-              <Loader size="lg" />
-            </Container>
+            <Table.Tr>
+              <Table.Td colSpan="6">
+                <Container py="xl">
+                  <Loader size="lg" />
+                </Container>
+              </Table.Td>
+            </Table.Tr>
           ) : fetched ? (
-            <Table.Tbody>{rows}</Table.Tbody>
+            <>{rows}</>
           ) : (
-            <Text color="red" size="xl" weight={700} align="center">
-              Failed to load project details
-            </Text>
+            <Table.Tr>
+                <Table.Td colSpan="6" align="center">
+                  <Text color="red" size="xl" weight={700} align="center">
+                    Failed to load project details
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
           )}
+          </Table.Tbody>
         </Table>
       </ScrollArea>
       <FileViewModal
