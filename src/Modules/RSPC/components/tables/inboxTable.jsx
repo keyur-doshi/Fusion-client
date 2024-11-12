@@ -24,7 +24,7 @@ const data = [
 ];
 //This data to come from researchProjects.jsx
 
-function InboxTable({ username }) {
+function InboxTable({ username, setActiveTab }) {
   const [scrolled, setScrolled] = useState(false);
   const [inboxData, setInboxData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -74,10 +74,10 @@ function InboxTable({ username }) {
 
   const rows = inboxData.map((row, index) => (
     <Table.Tr key={index}>
-      <Table.Td>{row.uploader}</Table.Td>
-      <Table.Td>{row.file_extra_JSON.pid}</Table.Td>
-      <Table.Td>{row.description}</Table.Td>
-      <Table.Td>{new Date(row.upload_date).toLocaleDateString()}</Table.Td>
+      <Table.Td>{row.fileData.uploader}</Table.Td>
+      <Table.Td>{row.fileData.file_extra_JSON.pid}</Table.Td>
+      <Table.Td>{row.fileData.description}</Table.Td>
+      <Table.Td>{new Date(row.fileData.upload_date).toLocaleDateString()}</Table.Td>
 
       <Table.Td>
         <Button
@@ -123,9 +123,7 @@ function InboxTable({ username }) {
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
               <Table.Th className={classes["header-cell"]}>Subject</Table.Th>
-              <Table.Th className={classes["header-cell"]}>
-                Date Received
-              </Table.Th>
+              <Table.Th className={classes["header-cell"]}>Date Created</Table.Th>
               <Table.Th className={classes["header-cell"]}>File</Table.Th>
               <Table.Th className={classes["header-cell"]}>Actions</Table.Th>
             </Table.Tr>
@@ -164,6 +162,7 @@ function InboxTable({ username }) {
         onClose={() => setActionsModalOpened(false)}
         file={selectedFile}
         username={username}
+        setActiveTab={setActiveTab}
       />
     </div>
   );

@@ -116,7 +116,7 @@ function ResearchProjects() {
   else
     tabItems.push({
       title: "Inbox",
-      component: <InboxTable username={username} />,
+      component: <InboxTable username={username} setActiveTab={setActiveTab} />,
     });
   if (role === rspc_admin_designation)
     tabItems.push({

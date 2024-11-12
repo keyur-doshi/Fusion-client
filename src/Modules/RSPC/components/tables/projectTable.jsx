@@ -7,6 +7,7 @@ import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
 import ProjectModal from "../modals/projectModal";
 import { rspc_admin_designation } from "../../helpers/designations";
+import { badgeColor } from "../../helpers/badgeColours";
 
 function ProjectTable({ setActiveTab, projectsData, username }) {
   const [scrolled, setScrolled] = useState(false);
@@ -27,15 +28,6 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
   const handleViewClick = (row) => {
     setSelectedProject(row);
     setModalOpened(true);
-  };
-
-  const badgeColor = {
-    OnGoing: "#85B5D9",
-    Completed: "green",
-    Terminated: "red",
-    Approved: "green",
-    Pending: "#85B5D9",
-    Rejected: "red",
   };
 
   const rows = projectsData.map(

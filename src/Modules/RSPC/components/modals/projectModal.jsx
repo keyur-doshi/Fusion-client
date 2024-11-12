@@ -15,6 +15,7 @@ import {
 import { FileText, EyeSlash } from "@phosphor-icons/react";
 import axios from "axios";
 import { host } from "../../../../routes/globalRoutes";
+import { badgeColor } from "../../helpers/badgeColours";
 
 function ProjectModal({ opened, onClose, projectData }) {
   const [loading, setLoading] = useState(false);
@@ -82,15 +83,6 @@ function ProjectModal({ opened, onClose, projectData }) {
       fetchExpenditure();
     }
   }, [projectData]);
-
-  const badgeColor = {
-    OnGoing: "#85B5D9",
-    Completed: "green",
-    Terminated: "red",
-    Approved: "green",
-    Pending: "#85B5D9",
-    Rejected: "red",
-  };
 
   const staffRows = staffDetails.map((staff, index) => (
     <tr key={index}>
@@ -258,15 +250,6 @@ function ProjectModal({ opened, onClose, projectData }) {
             <Button color="#15ABFF" style={{ marginRight: "3%" }}>
               <FileText size={26} style={{ marginRight: "3px" }} />
               Download Report
-            </Button>
-            <Button
-              variant="outline"
-              color="red"
-              onClick={onClose}
-              style={{ marginRight: "3%" }}
-            >
-              <EyeSlash size={26} style={{ marginRight: "3px" }} />
-              Close
             </Button>
           </div>
         </>

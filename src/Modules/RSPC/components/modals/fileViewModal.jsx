@@ -15,12 +15,14 @@ import {
 import { FileText, EyeSlash, DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
 import { host } from "../../../../routes/globalRoutes";
+import { badgeColor } from "../../helpers/badgeColours";
 
 function FileViewModal({ opened, onClose, file, role }) {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
 
   const [fileDetails, setFileDetails] = useState({});
+  const [senderDetails, setSenderDetails] = useState({});
   useEffect(() => {
     if (role === "Professor") {
       if (opened && file) {
@@ -39,7 +41,7 @@ function FileViewModal({ opened, onClose, file, role }) {
                 withCredentials: true,
               },
             );
-            console.log("Fetched File:", response.data);
+            console.log("Fetched File Details:", response.data);
             setFileDetails(response.data);
             setLoading(false);
           } catch (error) {
@@ -51,18 +53,15 @@ function FileViewModal({ opened, onClose, file, role }) {
         fetchFile();
       }
     } else {
-      setFileDetails(file);
+      if (file) {
+        setFileDetails(file.fileData);
+        setSenderDetails({
+          sender: file["sender"],
+          sender_designation: file["sender_designation"],
+        });
+      }
     }
   }, [file]);
-
-  const badgeColor = {
-    OnGoing: "#85B5D9",
-    Completed: "green",
-    Terminated: "red",
-    Approved: "green",
-    Pending: "#85B5D9",
-    Rejected: "red",
-  };
 
   return (
     <Modal opened={opened} onClose={onClose} size="xl">
@@ -131,7 +130,7 @@ function FileViewModal({ opened, onClose, file, role }) {
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender:</strong>{" "}
-                  {fileDetails.sent_by_user}
+                  {senderDetails.sender}
                 </Text>
               </GridCol>
             )}
@@ -139,7 +138,7 @@ function FileViewModal({ opened, onClose, file, role }) {
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender Designation:</strong>{" "}
-                  {fileDetails.sent_by_designation}
+                  {senderDetails.sender_designation}
                 </Text>
               </GridCol>
             )}
@@ -268,15 +267,6 @@ function FileViewModal({ opened, onClose, file, role }) {
             <Button color="#15ABFF" style={{ marginRight: "3%" }}>
               <DownloadSimple size={26} style={{ marginRight: "3px" }} />
               Download File
-            </Button>
-            <Button
-              variant="outline"
-              color="red"
-              onClick={onClose}
-              style={{ marginRight: "3%" }}
-            >
-              <EyeSlash size={26} style={{ marginRight: "3px" }} />
-              Close
             </Button>
           </div>
         </>
