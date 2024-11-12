@@ -59,7 +59,7 @@ const ProjectForm = ({ setActiveTab }) => {
     if (!token) return console.error("No authentication token found!");
 
     try {
-      console.log(values.start_date);
+      // console.log(values.start_date);
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("type", values.type);

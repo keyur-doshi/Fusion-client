@@ -253,7 +253,7 @@ const StaffForm = ({ projectID }) => {
               size="lg"
               type="submit"
               color="cyan"
-              style={{ borderRadius: "18px" }}
+              style={{ borderRadius: "8px" }}
             >
               Submit
             </Button>
