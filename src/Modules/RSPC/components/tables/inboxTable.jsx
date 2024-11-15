@@ -13,16 +13,10 @@ import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText } from "@phosphor-icons/react";
 import { host } from "../../../../routes/globalRoutes";
 import axios from "axios";
+import { fetchInboxRoute } from "../../../../routes/RSPCRoutes";
 import FileViewModal from "../modals/fileViewModal";
 import FileActionsModal from "../modals/fileActionsModal";
-import { designations, rspc_admin } from "../../helpers/designations";
-
-const data = [
-  { author: "PKP", subject: "Staff for Spacey", date: "10/10/2024" },
-  { author: "Jain", subject: "Funds for Starry", date: "27/09/2024" },
-  { author: "Gupta", subject: "Update for Galaxy", date: "31/08/2024" },
-];
-//This data to come from researchProjects.jsx
+import { designations } from "../../helpers/designations";
 
 function InboxTable({ username, setActiveTab }) {
   const [scrolled, setScrolled] = useState(false);
@@ -41,7 +35,7 @@ function InboxTable({ username, setActiveTab }) {
       if (!token) return console.error("No authentication token found!");
       try {
         const response = await axios.get(
-          `${host}/research_procedures/api/get-inbox/?username=${username}&designation=${designations[username]}`,
+          fetchInboxRoute(username, designations[username]),
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -77,7 +71,9 @@ function InboxTable({ username, setActiveTab }) {
       <Table.Td>{row.fileData.uploader}</Table.Td>
       <Table.Td>{row.fileData.file_extra_JSON.pid}</Table.Td>
       <Table.Td>{row.fileData.description}</Table.Td>
-      <Table.Td>{new Date(row.fileData.upload_date).toLocaleDateString()}</Table.Td>
+      <Table.Td>
+        {new Date(row.fileData.upload_date).toLocaleDateString()}
+      </Table.Td>
 
       <Table.Td>
         <Button
@@ -123,31 +119,33 @@ function InboxTable({ username, setActiveTab }) {
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
               <Table.Th className={classes["header-cell"]}>Subject</Table.Th>
-              <Table.Th className={classes["header-cell"]}>Date Created</Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Date Created
+              </Table.Th>
               <Table.Th className={classes["header-cell"]}>File</Table.Th>
               <Table.Th className={classes["header-cell"]}>Actions</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-          {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan="6">
-                <Container py="xl">
-                  <Loader size="lg" />
-                </Container>
-              </Table.Td>
-            </Table.Tr>
-          ) : fetched ? (
-            <>{rows}</>
-          ) : (
-            <Table.Tr>
+            {loading ? (
+              <Table.Tr>
+                <Table.Td colSpan="6">
+                  <Container py="xl">
+                    <Loader size="lg" />
+                  </Container>
+                </Table.Td>
+              </Table.Tr>
+            ) : fetched ? (
+              <>{rows}</>
+            ) : (
+              <Table.Tr>
                 <Table.Td colSpan="6" align="center">
                   <Text color="red" size="xl" weight={700} align="center">
                     Failed to load project details
                   </Text>
                 </Table.Td>
               </Table.Tr>
-          )}
+            )}
           </Table.Tbody>
         </Table>
       </ScrollArea>

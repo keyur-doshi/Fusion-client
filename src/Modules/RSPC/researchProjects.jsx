@@ -1,36 +1,23 @@
 import axios from "axios";
-import PropTypes from "prop-types";
 import {
   SortAscending,
   CaretCircleLeft,
   CaretCircleRight,
-  Eye,
-  FileText,
 } from "@phosphor-icons/react";
-import { useEffect, useMemo, useState, useRef } from "react";
-import {
-  Tabs,
-  Container,
-  Loader,
-  Badge,
-  Button,
-  Divider,
-  Flex,
-  Grid,
-  Paper,
-  Select,
-  Text,
-  CloseButton,
-} from "@mantine/core";
+import { useEffect, useState, useRef } from "react";
+import { Tabs, Button, Flex, Select, Text } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
-import classes from "../RSPC/styles/researchProjectsStyle.module.css";
+import classes from "./styles/researchProjectsStyle.module.css";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import ProjectTable from "./components/tables/projectTable.jsx";
 import RequestTable from "./components/tables/requestTable.jsx";
 import InboxTable from "./components/tables/inboxTable.jsx";
 import ProjectForm from "./components/forms/projectForm.jsx";
 import Notifications from "./components/notifications.jsx";
-import { host } from "../../routes/globalRoutes/index.jsx";
+import {
+  fetchProjectsRoute,
+  fetchUsernameRoute,
+} from "../../routes/RSPCRoutes/index.jsx";
 import { rspc_admin_designation } from "./helpers/designations.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
@@ -51,16 +38,13 @@ function ResearchProjects() {
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
       try {
-        const response = await axios.get(
-          `${host}/research_procedures/api/get-projects/`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true, // Include credentials if necessary
+        const response = await axios.get(fetchProjectsRoute, {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+          withCredentials: true, // Include credentials if necessary
+        });
         console.log("Fetched Projects:", response.data);
         setProjectsData(response.data); // Store the fetched projects data
       } catch (error) {
@@ -76,16 +60,13 @@ function ResearchProjects() {
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
       try {
-        const response = await axios.get(
-          `${host}/research_procedures/api/get-user/`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
+        const response = await axios.get(fetchUsernameRoute, {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+          withCredentials: true,
+        });
         console.log("Fetched Username:", response.data);
         setUsername(response.data.username);
       } catch (error) {

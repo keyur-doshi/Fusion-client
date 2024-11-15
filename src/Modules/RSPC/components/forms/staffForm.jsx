@@ -14,12 +14,12 @@ import {
   Alert,
 } from "@mantine/core";
 import { FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
-import classes from "../../styles/formStyle.module.css";
 import { useForm } from "@mantine/form";
-import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
-import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 import { useSelector } from "react-redux";
+import axios from "axios";
+import classes from "../../styles/formStyle.module.css";
+import { staffFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
+import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 
 const StaffForm = ({ projectID }) => {
   const [file, setFile] = useState(null);
@@ -77,7 +77,7 @@ const StaffForm = ({ projectID }) => {
       }
 
       const response = await axios.post(
-        `${host}/research_procedures/api/create-staff/?u_d=${role}&r=${rspc_admin}&r_d=${rspc_admin_designation}`,
+        staffFormSubmissionRoute(role, rspc_admin, rspc_admin_designation),
         formData,
         {
           headers: {
@@ -113,7 +113,7 @@ const StaffForm = ({ projectID }) => {
           <Grid gutter="xl">
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Full Name
+                Full Name <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of requested person"
@@ -123,7 +123,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Fusion Username
+                Fusion Username <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter Fusion username of requested person"
@@ -133,7 +133,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Select Department
+                Select Department <span style={{ color: 'red' }}>*</span>
               </Text>
               <Select
                 placeholder="Choose academic department"
@@ -154,7 +154,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Qualification
+                Qualification <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("qualification")}>
                 <Radio value="MTech" label="MTech Student" />
@@ -166,7 +166,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Designation
+                Designation <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("designation")}>
                 <Radio
@@ -192,7 +192,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Start Date Of Tenure
+                Start Date Of Tenure <span style={{ color: 'red' }}>*</span>
               </Text>
               <input
                 type="date"
@@ -203,7 +203,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                End Date Of Tenure
+                End Date Of Tenure <span style={{ color: 'red' }}>*</span>
               </Text>
               <input
                 type="date"

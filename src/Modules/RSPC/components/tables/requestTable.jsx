@@ -11,8 +11,12 @@ import {
 } from "@mantine/core";
 import classes from "../../styles/tableStyle.module.css";
 import { ClockCounterClockwise, Eye } from "@phosphor-icons/react";
-import { host } from "../../../../routes/globalRoutes";
 import axios from "axios";
+import {
+  fetchPIDsRoute,
+  fetchExpenditureRequestsRoute,
+  fetchStaffRequestsRoute,
+} from "../../../../routes/RSPCRoutes";
 import FileViewModal from "../modals/fileViewModal";
 import HistoryViewModal from "../modals/historyViewModal";
 import { badgeColor } from "../../helpers/badgeColours";
@@ -41,16 +45,13 @@ function RequestTable({ username }) {
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
       try {
-        const response = await axios.get(
-          `${host}/research_procedures/api/get-PIDs/?lead_id=${username}`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
+        const response = await axios.get(fetchPIDsRoute(username), {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+          withCredentials: true,
+        });
         console.log("Fetched PIDs:", response.data);
         setPIDs(response.data);
         setLoading(false);
@@ -74,20 +75,17 @@ function RequestTable({ username }) {
 
         try {
           const fetchExpenditurePromises = PIDs.map((pid) =>
-            axios.get(
-              `${host}/research_procedures/api/get-expenditure/?pid=${pid}`,
-              {
-                headers: {
-                  Authorization: `Token ${token}`,
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
+            axios.get(fetchExpenditureRequestsRoute(pid), {
+              headers: {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
               },
-            ),
+              withCredentials: true,
+            }),
           );
 
           const fetchStaffPromises = PIDs.map((pid) =>
-            axios.get(`${host}/research_procedures/api/get-staff/?pid=${pid}`, {
+            axios.get(fetchStaffRequestsRoute(pid), {
               headers: {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
@@ -213,33 +211,37 @@ function RequestTable({ username }) {
               <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
               <Table.Th className={classes["header-cell"]}> Subject</Table.Th>
               <Table.Th className={classes["header-cell"]}>Type</Table.Th>
-              <Table.Th className={classes["header-cell"]}>File Details</Table.Th>
-              <Table.Th className={classes["header-cell"]}>Tracking History</Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                File Details
+              </Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Tracking History
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-          {loading ? (
-           <Table.Tr>
-           <Table.Td colSpan="6">
-             <Container py="xl">
-               <Loader size="lg" />
-             </Container>
-           </Table.Td>
-         </Table.Tr>
-          ) : fetched ? (
-            <>
-              {expenditureRows}
-              {staffRows}
-            </>
-          ) : (
-            <Table.Tr>
+            {loading ? (
+              <Table.Tr>
+                <Table.Td colSpan="6">
+                  <Container py="xl">
+                    <Loader size="lg" />
+                  </Container>
+                </Table.Td>
+              </Table.Tr>
+            ) : fetched ? (
+              <>
+                {expenditureRows}
+                {staffRows}
+              </>
+            ) : (
+              <Table.Tr>
                 <Table.Td colSpan="6" align="center">
                   <Text color="red" size="xl" weight={700} align="center">
                     Failed to load project details
                   </Text>
                 </Table.Td>
               </Table.Tr>
-          )}
+            )}
           </Table.Tbody>
         </Table>
       </ScrollArea>

@@ -71,7 +71,7 @@ function FileViewModal({ opened, onClose, file, role }) {
         </Container>
       ) : fileDetails && Object.keys(fileDetails).length > 0 && fetched ? (
         <>
-          <Group position="apart" style={{ marginBottom: 20 }}>
+          <Group position="apart" style={{ marginBottom: 10 }}>
             <Text size="32px" weight={700}>
               {fileDetails.subject}
             </Text>
@@ -84,7 +84,7 @@ function FileViewModal({ opened, onClose, file, role }) {
             </Badge>
           </Group>
 
-          <Text size="26px" style={{ marginBottom: 20 }}>
+          <Text size="26px" style={{ marginBottom: 30 }}>
             {fileDetails.description}
           </Text>
           <Grid gutter="xs" style={{ marginBottom: 20 }}>
@@ -272,7 +272,7 @@ function FileViewModal({ opened, onClose, file, role }) {
         </>
       ) : (
         <Text color="red" size="xl" weight={700} align="center">
-          Failed to load project details
+          Failed to load request details
         </Text>
       )}
     </Modal>

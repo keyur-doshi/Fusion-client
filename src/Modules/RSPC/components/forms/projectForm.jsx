@@ -118,7 +118,7 @@ const ProjectForm = ({ setActiveTab }) => {
           <Grid gutter="xl">
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Title
+                Project Title <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of project"
@@ -128,7 +128,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Type
+                Project Type <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("type")}>
                 <Radio value="Research" label="Research" />
@@ -139,7 +139,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Investigator
+                Project Investigator <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of project lead"
@@ -149,7 +149,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Fusion ID Of Project Investigator
+                Fusion ID Of Project Investigator <span style={{ color: 'red' }}>*</span>
               </Text>
               <Select
                 placeholder="Choose Fusion username of professor"
@@ -161,7 +161,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Select Department
+                Select Department <span style={{ color: 'red' }}>*</span>
               </Text>
               <Select
                 placeholder="Choose academic department overlooking the project"
@@ -182,7 +182,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Category
+                Category <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("category")}>
                 <Radio value="Government" label="Government" />
@@ -194,7 +194,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Sponsor Agency
+                Project Sponsor Agency <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of sponsoring agency"
@@ -204,7 +204,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Budget (in INR)
+                Project Budget (in INR) <span style={{ color: 'red' }}>*</span>
               </Text>
               <NumberInput
                 placeholder="Enter total budget available for project"
@@ -214,7 +214,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Initiation Date
+                Project Initiation Date <span style={{ color: 'red' }}>*</span>
               </Text>
               <input
                 type="date"
@@ -225,7 +225,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Deadline
+                Project Deadline <span style={{ color: 'red' }}>*</span>
               </Text>
               <input
                 type="date"

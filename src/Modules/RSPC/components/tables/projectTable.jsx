@@ -40,7 +40,7 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
             </Badge>
           </Table.Td>
           <Table.Td>{row.name}</Table.Td>
-          <Table.Td>{row.pi_name}</Table.Td>
+          <Table.Td>{row.pid}</Table.Td>
           <Table.Td>{row.sponsored_agency}</Table.Td>
 
           {role === "Professor" && (
@@ -90,7 +90,7 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
                 Project Name
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>
-                Project Lead
+                Project ID
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>
                 Sponsor Agency

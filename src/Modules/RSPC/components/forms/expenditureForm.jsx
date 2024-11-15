@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import classes from "../../styles/formStyle.module.css";
-import { host } from "../../../../routes/globalRoutes";
+import { expenditureFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
 import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 
 const ExpenditureForm = ({ projectID }) => {
@@ -87,7 +87,11 @@ const ExpenditureForm = ({ projectID }) => {
         console.log(key, value);
       });
       const response = await axios.post(
-        `${host}/research_procedures/api/create-expenditure/?u_d=${role}&r=${rspc_admin}&r_d=${rspc_admin_designation}`,
+        expenditureFormSubmissionRoute(
+          role,
+          rspc_admin,
+          rspc_admin_designation,
+        ),
         formData,
         {
           headers: {
@@ -128,7 +132,7 @@ const ExpenditureForm = ({ projectID }) => {
           <Grid gutter="xl">
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Expenditure Type
+                Expenditure Type <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("exptype")}>
                 <Radio value="Tangible" label="Physical Item" />
@@ -138,7 +142,7 @@ const ExpenditureForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Requirement
+                Requirement <span style={{ color: 'red' }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter subject of expenditure"
@@ -148,7 +152,7 @@ const ExpenditureForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Estimated Cost (in INR)
+                Estimated Cost (in INR) <span style={{ color: 'red' }}>*</span>
               </Text>
               <NumberInput
                 placeholder="Enter estimated cost of expenditure"
@@ -158,7 +162,7 @@ const ExpenditureForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Latest Required By
+                Latest Required By <span style={{ color: 'red' }}>*</span>
               </Text>
               <input
                 type="date"
@@ -169,7 +173,7 @@ const ExpenditureForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Select Mode Of Fulfillment
+                Select Mode Of Fulfillment <span style={{ color: 'red' }}>*</span>
               </Text>
               <Select
                 placeholder="Choose how the requirement is fulfilled"
@@ -181,7 +185,7 @@ const ExpenditureForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Future Use Scope For Inventory
+                Future Use Scope For Inventory <span style={{ color: 'red' }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("inventory")}>
                 <Radio
