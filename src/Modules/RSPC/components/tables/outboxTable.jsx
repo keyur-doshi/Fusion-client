@@ -10,32 +10,32 @@ import {
   Container,
 } from "@mantine/core";
 import classes from "../../styles/tableStyle.module.css";
-import { Eye, FileText } from "@phosphor-icons/react";
-import { host } from "../../../../routes/globalRoutes";
+import { Eye, ClockCounterClockwise } from "@phosphor-icons/react";
 import axios from "axios";
-import { fetchInboxRoute } from "../../../../routes/RSPCRoutes";
+import { fetchProcessedRoute } from "../../../../routes/RSPCRoutes";
 import FileViewModal from "../modals/fileViewModal";
-import FileActionsModal from "../modals/fileActionsModal";
+import HistoryViewModal from "../modals/historyViewModal";
 import { designations } from "../../helpers/designations";
+import { badgeColor } from "../../helpers/badgeColours";
 
-function InboxTable({ username, setActiveTab }) {
+function ProcessedTable({ username }) {
   const [scrolled, setScrolled] = useState(false);
-  const [inboxData, setInboxData] = useState([]);
+  const [processedData, setProcessedData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewModalOpened, setViewModalOpened] = useState(false);
-  const [actionsModalOpened, setActionsModalOpened] = useState(false);
+  const [historyModalOpened, setHistoryModalOpened] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    const fetchInbox = async () => {
+    const fetchProcessed = async () => {
       console.log(designations[username]);
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
       try {
         const response = await axios.get(
-          fetchInboxRoute(username, designations[username]),
+          fetchProcessedRoute(username, designations[username]),
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -44,8 +44,8 @@ function InboxTable({ username, setActiveTab }) {
             withCredentials: true, 
           },
         );
-        console.log("Fetched Inbox:", response.data);
-        setInboxData(response.data); 
+        console.log("Fetched Processed Requests:", response.data);
+        setProcessedData(response.data); 
         setLoading(false);
       } catch (error) {
         console.error("Error during Axios GET:", error);
@@ -53,27 +53,30 @@ function InboxTable({ username, setActiveTab }) {
         setFetched(false);
       }
     };
-    fetchInbox();
+    fetchProcessed();
   }, [username]);
 
   const handleViewClick = (file) => {
     setSelectedFile(file);
     setViewModalOpened(true);
   };
-
-  const handleActionsClick = (file) => {
+  
+  const handleHistoryClick = (file) => {
     setSelectedFile(file);
-    setActionsModalOpened(true);
+    setHistoryModalOpened(true);
   };
 
-  const rows = inboxData.map((row, index) => (
+  const rows = processedData.map((row, index) => (
     <Table.Tr key={index}>
-      <Table.Td className={classes["row-content"]}>{row.fileData.uploader}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{row.fileData.file_extra_JSON.pid}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{row.fileData.description}</Table.Td>
       <Table.Td className={classes["row-content"]}>
-        {new Date(row.fileData.upload_date).toLocaleDateString()}
+        <Badge color={badgeColor[row.file_extra_JSON.approval]} size="lg">
+          {row.file_extra_JSON.approval}
+        </Badge>
       </Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.uploader}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.file_extra_JSON.pid}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.description}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{new Date(row.upload_date).toLocaleDateString()}</Table.Td>
 
       <Table.Td className={classes["row-content"]}>
         <Button
@@ -90,14 +93,14 @@ function InboxTable({ username, setActiveTab }) {
 
       <Table.Td className={classes["row-content"]}>
         <Button
-          onClick={() => handleActionsClick(row)}
+          onClick={() => handleHistoryClick(row.id)}
           variant="outline"
           color="#15ABFF"
           size="xs"
           style={{ borderRadius: "8px" }}
         >
-          <FileText size={26} style={{ marginRight: "3px" }} />
-          File Tracking
+          <ClockCounterClockwise size={26} style={{ margin: "3px" }} />
+          History
         </Button>
       </Table.Td>
     </Table.Tr>
@@ -114,6 +117,7 @@ function InboxTable({ username, setActiveTab }) {
             className={cx(classes.header, { [classes.scrolled]: scrolled })}
           >
             <Table.Tr>
+              <Table.Th className={classes["header-cell"]}>Status</Table.Th>
               <Table.Th className={classes["header-cell"]}>
                 Request Author
               </Table.Th>
@@ -123,7 +127,9 @@ function InboxTable({ username, setActiveTab }) {
                 Date Created
               </Table.Th>
               <Table.Th className={classes["header-cell"]}>File</Table.Th>
-              <Table.Th className={classes["header-cell"]}>Actions</Table.Th>
+              <Table.Th className={classes["header-cell"]}>
+                Tracking History
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -153,17 +159,15 @@ function InboxTable({ username, setActiveTab }) {
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFile}
-        role="Admin_Inbox"
+        role="Admin_Processed"
       />
-      <FileActionsModal
-        opened={actionsModalOpened}
-        onClose={() => setActionsModalOpened(false)}
+      <HistoryViewModal
+        opened={historyModalOpened}
+        onClose={() => setHistoryModalOpened(false)}
         file={selectedFile}
-        username={username}
-        setActiveTab={setActiveTab}
       />
     </div>
   );
 }
 
-export default InboxTable;
+export default ProcessedTable;

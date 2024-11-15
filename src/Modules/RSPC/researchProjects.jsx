@@ -12,13 +12,14 @@ import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import ProjectTable from "./components/tables/projectTable.jsx";
 import RequestTable from "./components/tables/requestTable.jsx";
 import InboxTable from "./components/tables/inboxTable.jsx";
+import ProcessedTable from "./components/tables/outboxTable.jsx";
 import ProjectForm from "./components/forms/projectForm.jsx";
 import Notifications from "./components/notifications.jsx";
 import {
   fetchProjectsRoute,
   fetchUsernameRoute,
 } from "../../routes/RSPCRoutes/index.jsx";
-import { rspc_admin_designation } from "./helpers/designations.jsx";
+import { rspc_admin_designation, director_designation } from "./helpers/designations.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
@@ -94,7 +95,7 @@ function ResearchProjects() {
       title: "Requests",
       component: <RequestTable username={username} />,
     });
-  else
+  else 
     tabItems.push({
       title: "Inbox",
       component: <InboxTable username={username} setActiveTab={setActiveTab} />,
@@ -104,6 +105,10 @@ function ResearchProjects() {
       title: "Add Project",
       component: <ProjectForm setActiveTab={setActiveTab} />,
     });
+  if(role !== "Professor")  tabItems.push({
+    title: "Processed Requests",
+    component: <ProcessedTable username={username}/>,
+  });
 
   const handleTabChange = (direction) => {
     const newIndex =

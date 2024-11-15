@@ -217,7 +217,7 @@ const ExpenditureForm = ({ projectID }) => {
                   size="md"
                   component="label"
                   className={classes.fileInputButton}
-                  style={{ borderRadius: "18px" }}
+                  style={{ borderRadius: "8px" }}
                 >
                   <FileText size={26} style={{ marginRight: "3px" }} />
                   Choose File
@@ -237,7 +237,7 @@ const ExpenditureForm = ({ projectID }) => {
               size="lg"
               type="submit"
               color="#15ABFF"
-              style={{ borderRadius: "18px" }}
+              style={{ borderRadius: "8px" }}
             >
               Submit
             </Button>

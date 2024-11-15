@@ -13,13 +13,8 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
-import {
-  FileText,
-  ThumbsUp,
-  ThumbsDown,
-  EyeSlash,
-} from "@phosphor-icons/react";
+import { forwardFileRoute, rejectFileRoute } from "../../../../routes/RSPCRoutes";
+import { ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
 import classes from "../../styles/formStyle.module.css";
 import {
   rspc_admin,
@@ -36,6 +31,8 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
   const [forwardList, setForwardList] = useState([]);
   const [successAlertVisible, setSuccessAlertVisible] = useState(false);
   const [failureAlertVisible, setFailureAlertVisible] = useState(false);
+  const [alertHeader, setAlertHeader] = useState("File Forwarding Failed");
+  const [alertBody, setAlertBody] = useState("The file could not be forwarded! Please verify the filled details and try again.");
 
   const form = useForm({
     initialValues: {
@@ -63,18 +60,16 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
       formData.forEach((value, key) => {
         console.log(key, value);
       });
-      const response = await axios.post(
-        `${host}/research_procedures/api/forward-file/`,
-        formData,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
+      const response = await axios.post(forwardFileRoute, formData, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-      );
+        withCredentials: true,
+      });
       console.log(response.data);
+      setAlertHeader("File Forwarded Successfully");
+      setAlertBody("The file has been successfully forwarded!");
       onClose();
       setSuccessAlertVisible(true);
       setTimeout(() => {
@@ -82,6 +77,71 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
         setActiveTab("1");
       }, 2500);
     } catch (error) {
+      console.error("Error during Axios POST:", error);
+      setFailureAlertVisible(true);
+      setTimeout(() => {
+        setFailureAlertVisible(false);
+      }, 2500);
+    }
+  };
+
+  const handleApprove = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return console.error("No authentication token found!");
+
+    try {
+      const response = await axios.post(
+        approveFileRoute,
+        { file_id: file.fileData.id },
+        { headers: { Authorization: `Token ${token}` } },
+      );
+      console.log("Approve Response:", response.data);
+      setAlertHeader(response.data.message);
+      setAlertBody("The file has been successfully approved! The requestor of file will be informed of the file approval and the file is now closed.");
+      onClose();
+      setSuccessAlertVisible(true);
+      setTimeout(() => {
+        setSuccessAlertVisible(false);
+        setActiveTab("1");
+      }, 2500);
+    } catch (error) {
+      setAlertHeader("File Approval Failed");
+      setAlertBody("The file could not be approved! Please check the file details and try again.");
+      console.error("Error during Axios POST:", error);
+      setFailureAlertVisible(true);
+      setTimeout(() => {
+        setFailureAlertVisible(false);
+      }, 2500);
+    }
+  };
+
+  const handleReject = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return console.error("No authentication token found!");
+
+    try {
+      const response = await axios.get(
+        rejectFileRoute(file.fileData.id),
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        },
+      );
+      console.log("Reject Response:", response.data);
+      setAlertHeader(response.data.message);
+      setAlertBody("The file has been successfully rejected! The requestor of file will be informed of the file rejection and the file is now closed.");
+      onClose();
+      setSuccessAlertVisible(true);
+      setTimeout(() => {
+        setSuccessAlertVisible(false);
+        setActiveTab("1");
+      }, 2500);
+    } catch (error) {
+      setAlertHeader("File Rejection Failed");
+      setAlertBody("The file could not be rejected! Please check the file details and try again.");
       console.error("Error during Axios POST:", error);
       setFailureAlertVisible(true);
       setTimeout(() => {
@@ -149,20 +209,23 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
                     {file.sender}
                   </Text>
                   <Text size="lg" weight={500} style={{ marginBottom: "10px" }}>
-                    <strong style={{ color: "blue" }}>Sender Designation:</strong>{" "}
+                    <strong style={{ color: "blue" }}>
+                      Sender Designation:
+                    </strong>{" "}
                     {file.sender_designation}
                   </Text>
                 </Box>
 
                 {/* Buttons under the Left column */}
                 <Group position="left" style={{ marginTop: "20px" }}>
-                  <Button color="green" disabled={approveButtonDisabled}>
+                  <Button color="green" style={{borderRadius: "8px"}} onClick={handleApprove} disabled={approveButtonDisabled}>
                     <ThumbsUp size={26} style={{ marginRight: "3px" }} />
                     Approve
                   </Button>
                   <Button
                     color="red"
-                    onClick={onClose}
+                    style={{borderRadius: "8px"}}
+                    onClick={handleReject}
                     variant="outline"
                     disabled={rejectButtonDisabled}
                   >
@@ -172,15 +235,12 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
                 </Group>
               </Grid.Col>
 
-              {/* Vertical Divider */}
               <Divider orientation="vertical" size="md" />
-
-              {/* Right Side - Interactive Fields */}
 
               <Grid.Col span={5} style={{ paddingLeft: "15px" }}>
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                   <Text size="lg" weight={500} style={{ marginBottom: "10px" }}>
-                    Select Recipient
+                    Select Recipient <span style={{ color: "red" }}>*</span>
                   </Text>
                   <Select
                     disabled={username === director}
@@ -204,7 +264,7 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
                   <Button
                     type="submit"
                     fullWidth
-                    style={{ marginTop: "20px" }}
+                    style={{ marginTop: "20px" , borderRadius: "8px"}}
                     disabled={forwardButtonDisabled}
                   >
                     Forward File
@@ -225,11 +285,7 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
           <Alert
             variant="filled"
             color={successAlertVisible ? "#85B5D9" : "red"}
-            title={
-              successAlertVisible
-                ? "File Forwarded Successfully"
-                : "File Forwarding Failed"
-            }
+            title={alertHeader}
             icon={
               successAlertVisible ? (
                 <ThumbsUp size={96} />
@@ -239,14 +295,14 @@ function FileActionsModal({ opened, onClose, file, username, setActiveTab }) {
             }
             className={classes.alertBox}
           >
-            {successAlertVisible
-              ? "The file has been successfully forwarded!"
-              : "The file could not be forwarded! Please verify the filled details and try again."}
+            {alertBody}
           </Alert>
         </div>
       )}
     </>
   );
 }
+
+// {row.fileData.file_extra_JSON.pid}
 
 export default FileActionsModal;

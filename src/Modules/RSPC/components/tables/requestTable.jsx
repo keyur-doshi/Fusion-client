@@ -28,13 +28,13 @@ function RequestTable({ username }) {
   const [fetched, setFetched] = useState(true);
 
   const [selectedFileID, setSelectedFileID] = useState(null);
-  const [fileModalOpened, setFileModalOpened] = useState(false);
+  const [viewModalOpened, setViewModalOpened] = useState(false);
   const [historyModalOpened, setHistoryModalOpened] = useState(false);
-  const handleViewFileClick = (file) => {
+  const handleViewClick = (file) => {
     setSelectedFileID(file);
-    setFileModalOpened(true);
+    setViewModalOpened(true);
   };
-  const handleViewHistoryClick = (file) => {
+  const handleHistoryClick = (file) => {
     setSelectedFileID(file);
     setHistoryModalOpened(true);
   };
@@ -122,34 +122,34 @@ function RequestTable({ username }) {
 
   const expenditureRows = expenditureRequests.map((row, index) => (
     <Table.Tr key={index}>
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Badge color={badgeColor[row.approval]} size="lg">
           {row.approval}
         </Badge>
       </Table.Td>
-      <Table.Td>{row.pid}</Table.Td>
-      <Table.Td>{row.item}</Table.Td>
-      <Table.Td>Expenditure</Table.Td>
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.item}</Table.Td>
+      <Table.Td className={classes["row-content"]}>Expenditure</Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Button
-          onClick={() => handleViewFileClick(row.file_id)}
+          onClick={() => handleViewClick(row.file_id)}
           variant="outline"
           color="#15ABFF"
           size="xs"
-          style={{ borderRadius: "18px" }}
+          style={{ borderRadius: "8px" }}
         >
           <Eye size={26} style={{ margin: "3px" }} />
           View
         </Button>
       </Table.Td>
 
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Button
-          onClick={() => handleViewHistoryClick(row.file_id)}
+          onClick={() => handleHistoryClick(row.file_id)}
           variant="outline"
           color="#15ABFF"
           size="xs"
-          style={{ borderRadius: "18px" }}
+          style={{ borderRadius: "8px" }}
         >
           <ClockCounterClockwise size={26} style={{ margin: "3px" }} />
           History
@@ -160,34 +160,34 @@ function RequestTable({ username }) {
 
   const staffRows = staffRequests.map((row, index) => (
     <Table.Tr key={index}>
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Badge color={badgeColor[row.approval]} size="lg">
           {row.approval}
         </Badge>
       </Table.Td>
-      <Table.Td>{row.pid}</Table.Td>
-      <Table.Td>{row.person}</Table.Td>
-      <Table.Td>Staff</Table.Td>
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.person}</Table.Td>
+      <Table.Td className={classes["row-content"]}>Staff</Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Button
-          onClick={() => handleViewFileClick(row.file_id)}
+          onClick={() => handleViewClick(row.file_id)}
           variant="outline"
           color="#15ABFF"
           size="xs"
-          style={{ borderRadius: "18px" }}
+          style={{ borderRadius: "8px" }}
         >
           <Eye size={26} style={{ margin: "3px" }} />
           View
         </Button>
       </Table.Td>
 
-      <Table.Td>
+      <Table.Td className={classes["row-content"]}>
         <Button
-          onClick={() => handleViewHistoryClick(row.file_id)}
+          onClick={() => handleHistoryClick(row.file_id)}
           variant="outline"
           color="#15ABFF"
           size="xs"
-          style={{ borderRadius: "18px" }}
+          style={{ borderRadius: "8px" }}
         >
           <ClockCounterClockwise size={26} style={{ margin: "3px" }} />
           History
@@ -246,8 +246,8 @@ function RequestTable({ username }) {
         </Table>
       </ScrollArea>
       <FileViewModal
-        opened={fileModalOpened}
-        onClose={() => setFileModalOpened(false)}
+        opened={viewModalOpened}
+        onClose={() => setViewModalOpened(false)}
         file={selectedFileID}
         role="Professor"
       />
@@ -255,7 +255,6 @@ function RequestTable({ username }) {
         opened={historyModalOpened}
         onClose={() => setHistoryModalOpened(false)}
         file={selectedFileID}
-        role="Professor"
       />
     </div>
   );
