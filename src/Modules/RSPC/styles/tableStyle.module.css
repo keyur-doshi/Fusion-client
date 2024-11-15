@@ -22,5 +22,10 @@
   .header-cell {
     font-size: 19px; /* Adjust the size as needed */
     font-weight: bold; /* Optional: Makes the text bold */
+    text-align: center;
+  }
+
+  .row-content {
+    text-align: center;
   }
   

@@ -34,23 +34,23 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
     (row, index) =>
       (role !== "Professor" || row.pi_id === username) && (
         <Table.Tr key={index}>
-          <Table.Td>
+          <Table.Td className={classes["row-content"]}>
             <Badge color={badgeColor[row.status]} size="lg">
               {row.status}
             </Badge>
           </Table.Td>
-          <Table.Td>{row.name}</Table.Td>
-          <Table.Td>{row.pid}</Table.Td>
-          <Table.Td>{row.sponsored_agency}</Table.Td>
+          <Table.Td className={classes["row-content"]}>{row.name}</Table.Td>
+          <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
+          <Table.Td className={classes["row-content"]}>{row.sponsored_agency}</Table.Td>
 
           {role === "Professor" && (
-            <Table.Td>
+            <Table.Td className={classes["row-content"]}>
               <Button
                 onClick={() => handleRequestClick(row.pid)}
                 variant="outline"
                 color="#15ABFF"
                 size="xs"
-                style={{ borderRadius: "18px" }}
+                style={{ borderRadius: "8px" }}
               >
                 <FileText size={26} style={{ marginRight: "3px" }} />
                 Request
@@ -58,13 +58,13 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
             </Table.Td>
           )}
 
-          <Table.Td>
+          <Table.Td className={classes["row-content"]}>
             <Button
               onClick={() => handleViewClick(row)}
               variant="outline"
               color="#15ABFF"
               size="xs"
-              style={{ borderRadius: "18px" }}
+              style={{ borderRadius: "8px" }}
             >
               <Eye size={26} style={{ margin: "3px" }} />
               View
@@ -127,9 +127,9 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
             onClick={handleAddClick}
             color="green"
             size="s"
-            style={{ borderRadius: "18px" }}
+            style={{ borderRadius: "8px" ,  padding: "7px 18px"}}
           >
-            <PlusCircle size={32} style={{ marginRight: "3px" }} />
+            <PlusCircle size={26} style={{ marginRight: "3px" }} />
             Add Project
           </Button>
         </div>

@@ -13,11 +13,17 @@ import {
   Text,
   Alert,
 } from "@mantine/core";
-import { Calendar, FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
+import {
+  Calendar,
+  FileText,
+  User,
+  ThumbsUp,
+  ThumbsDown,
+} from "@phosphor-icons/react";
 import classes from "../../styles/formStyle.module.css";
 import { useForm } from "@mantine/form";
 import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
+import { projectFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
 import { profIDs } from "../../helpers/professors";
 
 const ProjectForm = ({ setActiveTab }) => {
@@ -44,12 +50,15 @@ const ProjectForm = ({ setActiveTab }) => {
       name: (value) => (value ? null : "Project title is required"),
       type: (value) => (value ? null : "Project type is required"),
       pi_name: (value) => (value ? null : "Project investigator is required"),
-      pi_id: (value) => (value ? null : "Fusion ID of the project investigator is required"),
+      pi_id: (value) =>
+        value ? null : "Fusion ID of the project investigator is required",
       dept: (value) => (value ? null : "Department is required"),
       category: (value) => (value ? null : "Project category is required"),
-      sponsored_agency: (value) => (value ? null : "Project sponsor agency is required"),
-      total_budget: (value) => (value > 0 ? null : "Budget must be greater than 0"),
-      start_date: (value) => (console.log(isNaN((new Date(value)).getTime()))),
+      sponsored_agency: (value) =>
+        value ? null : "Project sponsor agency is required",
+      total_budget: (value) =>
+        value > 0 ? null : "Budget must be greater than 0",
+      start_date: (value) => console.log(isNaN(new Date(value).getTime())),
       // deadline: (value) => (value==="" ? "Project deadline is required" : null),
     },
   });
@@ -81,17 +90,13 @@ const ProjectForm = ({ setActiveTab }) => {
       formData.forEach((value, key) => {
         console.log(key, value);
       });
-      const response = await axios.post(
-        `${host}/research_procedures/api/add-project/`,
-        formData,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(projectFormSubmissionRoute, formData, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
       console.log(response.data);
       setSuccessAlertVisible(true);
       setTimeout(() => {
@@ -118,7 +123,7 @@ const ProjectForm = ({ setActiveTab }) => {
           <Grid gutter="xl">
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Title <span style={{ color: 'red' }}>*</span>
+                Project Title <span style={{ color: "red" }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of project"
@@ -128,7 +133,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Type <span style={{ color: 'red' }}>*</span>
+                Project Type <span style={{ color: "red" }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("type")}>
                 <Radio value="Research" label="Research" />
@@ -139,7 +144,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Investigator <span style={{ color: 'red' }}>*</span>
+                Project Investigator <span style={{ color: "red" }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of project lead"
@@ -149,7 +154,8 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Fusion ID Of Project Investigator <span style={{ color: 'red' }}>*</span>
+                Fusion ID Of Project Investigator
+                <span style={{ color: "red" }}>*</span>
               </Text>
               <Select
                 placeholder="Choose Fusion username of professor"
@@ -161,7 +167,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Select Department <span style={{ color: 'red' }}>*</span>
+                Select Department <span style={{ color: "red" }}>*</span>
               </Text>
               <Select
                 placeholder="Choose academic department overlooking the project"
@@ -182,7 +188,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Category <span style={{ color: 'red' }}>*</span>
+                Category <span style={{ color: "red" }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("category")}>
                 <Radio value="Government" label="Government" />
@@ -194,7 +200,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Sponsor Agency <span style={{ color: 'red' }}>*</span>
+                Project Sponsor Agency <span style={{ color: "red" }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of sponsoring agency"
@@ -204,7 +210,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Budget (in INR) <span style={{ color: 'red' }}>*</span>
+                Project Budget (in INR) <span style={{ color: "red" }}>*</span>
               </Text>
               <NumberInput
                 placeholder="Enter total budget available for project"
@@ -214,7 +220,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Initiation Date <span style={{ color: 'red' }}>*</span>
+                Project Initiation Date <span style={{ color: "red" }}>*</span>
               </Text>
               <input
                 type="date"
@@ -225,7 +231,7 @@ const ProjectForm = ({ setActiveTab }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Deadline <span style={{ color: 'red' }}>*</span>
+                Project Deadline <span style={{ color: "red" }}>*</span>
               </Text>
               <input
                 type="date"
@@ -255,7 +261,7 @@ const ProjectForm = ({ setActiveTab }) => {
                   size="md"
                   component="label"
                   className={classes.fileInputButton}
-                  style={{ borderRadius: "18px" }}
+                  style={{ borderRadius: "8px" }}
                 >
                   <FileText size={26} style={{ marginRight: "3px" }} />
                   Choose File
@@ -275,7 +281,7 @@ const ProjectForm = ({ setActiveTab }) => {
               size="lg"
               type="submit"
               color="cyan"
-              style={{ borderRadius: "18px" }}
+              style={{ borderRadius: "8px" }}
             >
               Submit
             </Button>
@@ -288,8 +294,18 @@ const ProjectForm = ({ setActiveTab }) => {
           <Alert
             variant="filled"
             color={successAlertVisible ? "#85B5D9" : "red"}
-            title={successAlertVisible ? "Form Submission Successful" : "Form Submission Failed"}
-            icon={successAlertVisible ? <ThumbsUp size={96} /> : <ThumbsDown size={96} />}
+            title={
+              successAlertVisible
+                ? "Form Submission Successful"
+                : "Form Submission Failed"
+            }
+            icon={
+              successAlertVisible ? (
+                <ThumbsUp size={96} />
+              ) : (
+                <ThumbsDown size={96} />
+              )
+            }
             className={classes.alertBox}
           >
             {successAlertVisible

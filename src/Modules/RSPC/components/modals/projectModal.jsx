@@ -12,9 +12,12 @@ import {
   Grid,
   GridCol,
 } from "@mantine/core";
-import { FileText, EyeSlash } from "@phosphor-icons/react";
+import { FileText } from "@phosphor-icons/react";
 import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
+import {
+  fetchStaffRequestsRoute,
+  fetchExpenditureRequestsRoute,
+} from "../../../../routes/RSPCRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
 function ProjectModal({ opened, onClose, projectData }) {
@@ -31,7 +34,7 @@ function ProjectModal({ opened, onClose, projectData }) {
         if (!token) return console.error("No authentication token found!");
         try {
           const response = await axios.get(
-            `${host}/research_procedures/api/get-staff/?pid=${projectData.pid}`,
+            fetchStaffRequestsRoute(projectData.pid),
             {
               headers: {
                 Authorization: `Token ${token}`,
@@ -62,7 +65,7 @@ function ProjectModal({ opened, onClose, projectData }) {
         if (!token) return console.error("No authentication token found!");
         try {
           const response = await axios.get(
-            `${host}/research_procedures/api/get-expenditure/?pid=${projectData.pid}`,
+            fetchExpenditureRequestsRoute(projectData.pid),
             {
               headers: {
                 Authorization: `Token ${token}`,
@@ -247,7 +250,7 @@ function ProjectModal({ opened, onClose, projectData }) {
               marginTop: 30,
             }}
           >
-            <Button color="#15ABFF" style={{ marginRight: "3%" }}>
+            <Button color="#15ABFF" style={{ marginRight: "3%" , borderRadius: "8px"}}>
               <FileText size={26} style={{ marginRight: "3px" }} />
               Download Report
             </Button>

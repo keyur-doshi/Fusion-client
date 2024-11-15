@@ -12,9 +12,9 @@ import {
   Grid,
   GridCol,
 } from "@mantine/core";
-import { FileText, EyeSlash, DownloadSimple } from "@phosphor-icons/react";
+import { DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
+import { fetchFileRoute } from "../../../../routes/RSPCRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
 function FileViewModal({ opened, onClose, file, role }) {
@@ -31,16 +31,13 @@ function FileViewModal({ opened, onClose, file, role }) {
           const token = localStorage.getItem("authToken");
           if (!token) return console.error("No authentication token found!");
           try {
-            const response = await axios.get(
-              `${host}/research_procedures/api/get-file/?file_id=${file}`,
-              {
-                headers: {
-                  Authorization: `Token ${token}`,
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
+            const response = await axios.get(fetchFileRoute(file), {
+              headers: {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
               },
-            );
+              withCredentials: true,
+            });
             console.log("Fetched File Details:", response.data);
             setFileDetails(response.data);
             setLoading(false);
@@ -54,11 +51,13 @@ function FileViewModal({ opened, onClose, file, role }) {
       }
     } else {
       if (file) {
-        setFileDetails(file.fileData);
-        setSenderDetails({
-          sender: file["sender"],
-          sender_designation: file["sender_designation"],
-        });
+        if (role === "Admin_Inbox") {
+          setFileDetails(file.fileData);
+          setSenderDetails({
+            sender: file["sender"],
+            sender_designation: file["sender_designation"],
+          });
+        } else setFileDetails(file);
       }
     }
   }, [file]);
@@ -126,7 +125,7 @@ function FileViewModal({ opened, onClose, file, role }) {
                 {fileDetails.file_extra_JSON.request_type}
               </Text>
             </GridCol>
-            {role !== "Professor" && (
+            {role === "Admin_Inbox" && (
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender:</strong>{" "}
@@ -134,7 +133,7 @@ function FileViewModal({ opened, onClose, file, role }) {
                 </Text>
               </GridCol>
             )}
-            {role !== "Professor" && (
+            {role === "Admin_Inbox" && (
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender Designation:</strong>{" "}
@@ -264,7 +263,7 @@ function FileViewModal({ opened, onClose, file, role }) {
               marginTop: 30,
             }}
           >
-            <Button color="#15ABFF" style={{ marginRight: "3%" }}>
+            <Button color="#15ABFF" style={{ marginRight: "3%" , borderRadius: "8px" }}>
               <DownloadSimple size={26} style={{ marginRight: "3px" }} />
               Download File
             </Button>

@@ -6,23 +6,20 @@ import {
   Badge,
   Card,
   Group,
-  Table,
   Loader,
   Container,
   Divider,
-  Grid,
-  GridCol,
 } from "@mantine/core";
-import { FileText, EyeSlash, DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
+import { fetchFileTrackingHistoryRoute } from "../../../../routes/RSPCRoutes";
 import { host } from "../../../../routes/globalRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
-function HistoryViewModal({ opened, onClose, file, role }) {
+function HistoryViewModal({ opened, onClose, file }) {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
-
   const [historyDetails, setHistoryDetails] = useState({});
+  const [approval, setApproval] = useState("Pending");
   useEffect(() => {
     if (opened && file) {
       setLoading(true);
@@ -31,7 +28,7 @@ function HistoryViewModal({ opened, onClose, file, role }) {
         if (!token) return console.error("No authentication token found!");
         try {
           const response = await axios.get(
-            `${host}/research_procedures/api/get-history/?file_id=${file}`,
+            fetchFileTrackingHistoryRoute(file),
             {
               headers: {
                 Authorization: `Token ${token}`,
@@ -41,11 +38,11 @@ function HistoryViewModal({ opened, onClose, file, role }) {
             },
           );
           console.log("Fetched File Tracking History:", response.data);
-          const sortedHistoryDetails = response.data.sort(
+          const sortedHistoryDetails = response.data.historyData.sort(
             (a, b) => new Date(a.forward_date) - new Date(b.forward_date),
           );
           setHistoryDetails(sortedHistoryDetails);
-          console.log("sorted:", historyDetails);
+          setApproval(response.data.approval);
           setLoading(false);
         } catch (error) {
           console.error("Error during Axios GET:", error);
@@ -73,15 +70,21 @@ function HistoryViewModal({ opened, onClose, file, role }) {
               {historyDetails[0].tracking_extra_JSON["tracker heading"]}
             </Text>
             <Badge
-              color={badgeColor[historyDetails[0].tracking_extra_JSON["approval"]]}
+              color={
+                badgeColor[approval]
+              }
               size="lg"
               style={{ fontSize: "18px" }}
             >
-              {historyDetails[0].tracking_extra_JSON.approval}
+              {approval}
             </Badge>
           </Group>
 
-          <Text fw={700} size="26px" style={{ marginBottom: 10, color: "#15ABFF", textAlign:"center" }}>
+          <Text
+            fw={700}
+            size="26px"
+            style={{ marginBottom: 10, color: "#15ABFF", textAlign: "center" }}
+          >
             File Tracking History
           </Text>
           <Divider my="sm" size="md" />

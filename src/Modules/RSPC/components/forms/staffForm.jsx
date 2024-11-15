@@ -233,7 +233,7 @@ const StaffForm = ({ projectID }) => {
                   size="md"
                   component="label"
                   className={classes.fileInputButton}
-                  style={{ borderRadius: "18px" }}
+                  style={{ borderRadius: "8px" }}
                 >
                   <FileText size={26} style={{ marginRight: "3px" }} />
                   Choose File
