@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-props-no-spreading */
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,7 +23,7 @@ import classes from "../../styles/formStyle.module.css";
 import { staffFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
 import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 
-const StaffForm = ({ projectID }) => {
+function StaffForm({ projectID }) {
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
   const role = useSelector((state) => state.user.role);
@@ -50,7 +52,7 @@ const StaffForm = ({ projectID }) => {
       designation: (value) => (value === "" ? "Designation is required" : null),
       stipend: (value) => (value < 0 ? "Stipend must not be negative" : null),
       lastdate: (value, values) =>
-        value !== "" && values.startdate != "" && value < values.startdate
+        value !== "" && values.startdate !== "" && value < values.startdate
           ? "End date cannot be before start date"
           : null,
     },
@@ -113,7 +115,7 @@ const StaffForm = ({ projectID }) => {
           <Grid gutter="xl">
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Full Name <span style={{ color: 'red' }}>*</span>
+                Full Name <span style={{ color: "red" }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter name of requested person"
@@ -123,7 +125,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Fusion Username <span style={{ color: 'red' }}>*</span>
+                Fusion Username <span style={{ color: "red" }}>*</span>
               </Text>
               <TextInput
                 placeholder="Enter Fusion username of requested person"
@@ -133,7 +135,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Select Department <span style={{ color: 'red' }}>*</span>
+                Select Department <span style={{ color: "red" }}>*</span>
               </Text>
               <Select
                 placeholder="Choose academic department"
@@ -154,7 +156,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Qualification <span style={{ color: 'red' }}>*</span>
+                Qualification <span style={{ color: "red" }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("qualification")}>
                 <Radio value="MTech" label="MTech Student" />
@@ -166,7 +168,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Designation <span style={{ color: 'red' }}>*</span>
+                Designation <span style={{ color: "red" }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("designation")}>
                 <Radio
@@ -192,7 +194,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Start Date Of Tenure <span style={{ color: 'red' }}>*</span>
+                Start Date Of Tenure <span style={{ color: "red" }}>*</span>
               </Text>
               <input
                 type="date"
@@ -203,7 +205,7 @@ const StaffForm = ({ projectID }) => {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                End Date Of Tenure <span style={{ color: 'red' }}>*</span>
+                End Date Of Tenure <span style={{ color: "red" }}>*</span>
               </Text>
               <input
                 type="date"
@@ -288,6 +290,10 @@ const StaffForm = ({ projectID }) => {
       )}
     </>
   );
+}
+
+StaffForm.propTypes = {
+  projectID: PropTypes.number.isRequired,
 };
 
 export default StaffForm;

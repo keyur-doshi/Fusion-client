@@ -1,18 +1,17 @@
+import PropTypes from "prop-types";
 import cx from "clsx";
 import { useState, useEffect } from "react";
 import {
   Table,
   Button,
-  Badge,
   ScrollArea,
   Text,
   Loader,
   Container,
 } from "@mantine/core";
-import classes from "../../styles/tableStyle.module.css";
 import { Eye, FileText } from "@phosphor-icons/react";
-import { host } from "../../../../routes/globalRoutes";
 import axios from "axios";
+import classes from "../../styles/tableStyle.module.css";
 import { fetchInboxRoute } from "../../../../routes/RSPCRoutes";
 import FileViewModal from "../modals/fileViewModal";
 import FileActionsModal from "../modals/fileActionsModal";
@@ -41,11 +40,11 @@ function InboxTable({ username, setActiveTab }) {
               Authorization: `Token ${token}`,
               "Content-Type": "application/json",
             },
-            withCredentials: true, 
+            withCredentials: true,
           },
         );
         console.log("Fetched Inbox:", response.data);
-        setInboxData(response.data); 
+        setInboxData(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error during Axios GET:", error);
@@ -68,9 +67,15 @@ function InboxTable({ username, setActiveTab }) {
 
   const rows = inboxData.map((row, index) => (
     <Table.Tr key={index}>
-      <Table.Td className={classes["row-content"]}>{row.fileData.uploader}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{row.fileData.file_extra_JSON.pid}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{row.fileData.description}</Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {row.fileData.uploader}
+      </Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {row.fileData.file_extra_JSON.pid}
+      </Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {row.fileData.description}
+      </Table.Td>
       <Table.Td className={classes["row-content"]}>
         {new Date(row.fileData.upload_date).toLocaleDateString()}
       </Table.Td>
@@ -136,7 +141,10 @@ function InboxTable({ username, setActiveTab }) {
                 </Table.Td>
               </Table.Tr>
             ) : fetched ? (
-              <>{rows}</>
+              <>
+                <span />
+                {rows}
+              </>
             ) : (
               <Table.Tr>
                 <Table.Td colSpan="6" align="center">
@@ -153,7 +161,7 @@ function InboxTable({ username, setActiveTab }) {
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFile}
-        role="Admin_Inbox"
+        userRole="Admin_Inbox"
       />
       <FileActionsModal
         opened={actionsModalOpened}
@@ -165,5 +173,10 @@ function InboxTable({ username, setActiveTab }) {
     </div>
   );
 }
+
+InboxTable.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+};
 
 export default InboxTable;

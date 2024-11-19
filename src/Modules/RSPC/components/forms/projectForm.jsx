@@ -1,5 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
+import PropTypes from "prop-types";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   TextInput,
@@ -13,22 +14,15 @@ import {
   Text,
   Alert,
 } from "@mantine/core";
-import {
-  Calendar,
-  FileText,
-  User,
-  ThumbsUp,
-  ThumbsDown,
-} from "@phosphor-icons/react";
-import classes from "../../styles/formStyle.module.css";
+import { FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
 import { useForm } from "@mantine/form";
 import axios from "axios";
+import classes from "../../styles/formStyle.module.css";
 import { projectFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
 import { profIDs } from "../../helpers/professors";
 
-const ProjectForm = ({ setActiveTab }) => {
+function ProjectForm({ setActiveTab }) {
   const [file, setFile] = useState(null);
-  const navigate = useNavigate();
   const [successAlertVisible, setSuccessAlertVisible] = useState(false);
   const [failureAlertVisible, setFailureAlertVisible] = useState(false);
 
@@ -58,8 +52,10 @@ const ProjectForm = ({ setActiveTab }) => {
         value ? null : "Project sponsor agency is required",
       total_budget: (value) =>
         value > 0 ? null : "Budget must be greater than 0",
-      start_date: (value) => console.log(isNaN(new Date(value).getTime())),
-      // deadline: (value) => (value==="" ? "Project deadline is required" : null),
+      start_date: (value) =>
+        console.log(Number.isNaN(new Date(value).getTime())),
+      deadline: (value) =>
+        value === "" ? "Project deadline is required" : null,
     },
   });
 
@@ -101,7 +97,7 @@ const ProjectForm = ({ setActiveTab }) => {
       setSuccessAlertVisible(true);
       setTimeout(() => {
         setSuccessAlertVisible(false);
-        navigate("/research");
+        setActiveTab("1");
       }, 2500);
     } catch (error) {
       console.error("Error during Axios POST:", error);
@@ -316,6 +312,10 @@ const ProjectForm = ({ setActiveTab }) => {
       )}
     </>
   );
+}
+
+ProjectForm.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
 };
 
 export default ProjectForm;

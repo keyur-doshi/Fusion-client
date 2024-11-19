@@ -1,5 +1,4 @@
 import {
-  Tabs,
   Container,
   Loader,
   Badge,
@@ -8,23 +7,20 @@ import {
   Flex,
   Grid,
   Paper,
-  Select,
   Text,
   CloseButton,
 } from "@mantine/core";
-import { Empty } from "../../../components/empty";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
+import { Empty } from "../../../components/empty";
 import {
   notificationReadRoute,
   notificationDeleteRoute,
   notificationUnreadRoute,
   getNotificationsRoute,
 } from "../../../routes/dashboardRoutes";
-
-const categories = ["Most Recent", "Tags", "Title"];
 
 function NotificationItem({
   notification,
