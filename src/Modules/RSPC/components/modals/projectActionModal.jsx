@@ -78,6 +78,7 @@ function ProjectActionModal({ opened, onClose, projectData, setActiveTab }) {
       setTimeout(() => {
         setSuccessAlertVisible(false);
         setActiveTab("1");
+        window.location.reload();
       }, 2500);
     } catch (error) {
       console.error("Error during Axios POST:", error);
@@ -113,6 +114,7 @@ function ProjectActionModal({ opened, onClose, projectData, setActiveTab }) {
       setTimeout(() => {
         setSuccessAlertVisible(false);
         setActiveTab("1");
+        window.location.reload();
       }, 2500);
     } catch (error) {
       setAlertHeader("Project Completion Failed");
