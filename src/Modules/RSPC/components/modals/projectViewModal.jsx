@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import {
   Modal,
@@ -14,13 +15,14 @@ import {
 } from "@mantine/core";
 import { FileText } from "@phosphor-icons/react";
 import axios from "axios";
+import { host } from "../../../../routes/globalRoutes";
 import {
   fetchStaffRequestsRoute,
   fetchExpenditureRequestsRoute,
 } from "../../../../routes/RSPCRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
-function ProjectModal({ opened, onClose, projectData }) {
+function ProjectViewModal({ opened, onClose, projectData }) {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
 
@@ -250,9 +252,18 @@ function ProjectModal({ opened, onClose, projectData }) {
               marginTop: 30,
             }}
           >
-            <Button color="#15ABFF" style={{ marginRight: "3%" , borderRadius: "8px"}}>
+            <Button
+              component="a"
+              color="#15ABFF"
+              href={`${host}/${projectData.file}`}
+              target="_blank"
+              style={{
+                marginRight: "3%",
+                borderRadius: "8px",
+              }}
+            >
               <FileText size={26} style={{ marginRight: "3px" }} />
-              Download Report
+              Project Agreement File
             </Button>
           </div>
         </>
@@ -265,4 +276,27 @@ function ProjectModal({ opened, onClose, projectData }) {
   );
 }
 
-export default ProjectModal;
+ProjectViewModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  projectData: PropTypes.shape({
+    pid: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    pi_name: PropTypes.string,
+    pi_id: PropTypes.string.isRequired,
+    sponsored_agency: PropTypes.string.isRequired,
+    dept: PropTypes.string,
+    type: PropTypes.string,
+    start_date: PropTypes.string,
+    deadline: PropTypes.string,
+    finish_date: PropTypes.string,
+    total_budget: PropTypes.number,
+    rem_budget: PropTypes.number,
+    category: PropTypes.string,
+    description: PropTypes.string,
+    file: PropTypes.string,
+  }).isRequired,
+};
+
+export default ProjectViewModal;

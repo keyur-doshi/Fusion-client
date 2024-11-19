@@ -1,7 +1,7 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import {
   Modal,
-  Button,
   Text,
   Badge,
   Card,
@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { fetchFileTrackingHistoryRoute } from "../../../../routes/RSPCRoutes";
-import { host } from "../../../../routes/globalRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
 function HistoryViewModal({ opened, onClose, file }) {
@@ -52,9 +51,6 @@ function HistoryViewModal({ opened, onClose, file }) {
       };
       fetchFile();
     }
-    // } else {
-    //   setHistoryDetails(file);
-    // }
   }, [file]);
 
   return (
@@ -70,9 +66,7 @@ function HistoryViewModal({ opened, onClose, file }) {
               {historyDetails[0].tracking_extra_JSON["tracker heading"]}
             </Text>
             <Badge
-              color={
-                badgeColor[approval]
-              }
+              color={badgeColor[approval]}
               size="lg"
               style={{ fontSize: "18px" }}
             >
@@ -123,27 +117,6 @@ function HistoryViewModal({ opened, onClose, file }) {
               <Text mb="xs">
                 Remarks: {entry.remarks || "No remarks provided"}
               </Text>
-              {entry.upload_file && (
-                <Group spacing="xs">
-                  <Paperclip size="1rem" />
-                  <Text size="sm">Attachment:</Text>
-                  <Button
-                    variant="light"
-                    component="a"
-                    href={`${host}/${entry.upload_file}`}
-                    target="_blank"
-                    radius="md"
-                    sx={{
-                      textOverflow: "ellipsis",
-                      maxWidth: "200px",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {entry.upload_file.split("/").pop()}
-                  </Button>
-                </Group>
-              )}
             </Card>
           ))}
         </>
@@ -155,5 +128,11 @@ function HistoryViewModal({ opened, onClose, file }) {
     </Modal>
   );
 }
+
+HistoryViewModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  file: PropTypes.number.isRequired,
+};
 
 export default HistoryViewModal;

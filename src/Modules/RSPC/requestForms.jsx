@@ -4,34 +4,46 @@ import {
   CaretCircleRight,
 } from "@phosphor-icons/react";
 import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import { Tabs, Button, Flex, Select, Text } from "@mantine/core";
-import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import classes from "./styles/researchProjectsStyle.module.css";
 import CustomRSPCBreadcrumbs from "./components/RSPCBreadcrumbs.jsx";
 import StaffForm from "./components/forms/staffForm.jsx";
 import ExpenditureForm from "./components/forms/expenditureForm.jsx";
+import CompletionForm from "./components/forms/completionForm.jsx";
+import EditForm from "./components/forms/editForm.jsx";
 import Notifications from "./components/notifications.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function RequestForms() {
   const [activeTab, setActiveTab] = useState("1");
+  const role = useSelector((state) => state.user.role);
   const [sortedBy, setSortedBy] = useState("Most Recent");
-  const [loading, setLoading] = useState(false);
-  const [read_Loading, setRead_Loading] = useState(-1);
-  const dispatch = useDispatch();
   const tabsListRef = useRef(null);
   const location = useLocation();
   const { projectID } = location.state || {};
-  const tabItems = [
-    { title: "Notifications", component: <Notifications /> },
-    { title: "Staff", component: <StaffForm projectID={projectID} /> },
-    {
-      title: "Expenditure",
-      component: <ExpenditureForm projectID={projectID} />,
-    },
-  ];
+
+  const tabItems = [{ title: "Notifications", component: <Notifications /> }];
+  if (role === "Professor") {
+    tabItems.push(
+      { title: "Staff", component: <StaffForm projectID={projectID} /> },
+      {
+        title: "Expenditure",
+        component: <ExpenditureForm projectID={projectID} />,
+      },
+      {
+        title: "Completion",
+        component: <CompletionForm projectID={projectID} />,
+      },
+    );
+  } else {
+    tabItems.push({
+      title: "Edit",
+      component: <EditForm projectID={projectID} />,
+    });
+  }
 
   const handleTabChange = (direction) => {
     const newIndex =
@@ -120,7 +132,7 @@ function RequestForms() {
           />
         </Flex>
       </Flex>
-      {tabItems[parseInt(activeTab)].component}
+      {tabItems[parseInt(activeTab, 10)].component}
     </>
   );
 }

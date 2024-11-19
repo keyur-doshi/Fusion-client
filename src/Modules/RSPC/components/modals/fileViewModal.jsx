@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import {
   Modal,
@@ -5,26 +6,26 @@ import {
   Text,
   Badge,
   Group,
-  Table,
   Loader,
   Container,
   Divider,
   Grid,
   GridCol,
 } from "@mantine/core";
-import { DownloadSimple } from "@phosphor-icons/react";
+import { FileText } from "@phosphor-icons/react";
 import axios from "axios";
+import { host } from "../../../../routes/globalRoutes";
 import { fetchFileRoute } from "../../../../routes/RSPCRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
 
-function FileViewModal({ opened, onClose, file, role }) {
+function FileViewModal({ opened, onClose, file, userRole }) {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
 
   const [fileDetails, setFileDetails] = useState({});
   const [senderDetails, setSenderDetails] = useState({});
   useEffect(() => {
-    if (role === "Professor") {
+    if (userRole === "Professor") {
       if (opened && file) {
         setLoading(true);
         const fetchFile = async () => {
@@ -49,16 +50,14 @@ function FileViewModal({ opened, onClose, file, role }) {
         };
         fetchFile();
       }
-    } else {
-      if (file) {
-        if (role === "Admin_Inbox") {
-          setFileDetails(file.fileData);
-          setSenderDetails({
-            sender: file["sender"],
-            sender_designation: file["sender_designation"],
-          });
-        } else setFileDetails(file);
-      }
+    } else if (file) {
+      if (userRole === "Admin_Inbox") {
+        setFileDetails(file.fileData);
+        setSenderDetails({
+          sender: file.sender,
+          sender_designation: file.sender_designation,
+        });
+      } else setFileDetails(file);
     }
   }, [file]);
 
@@ -125,7 +124,7 @@ function FileViewModal({ opened, onClose, file, role }) {
                 {fileDetails.file_extra_JSON.request_type}
               </Text>
             </GridCol>
-            {role === "Admin_Inbox" && (
+            {userRole === "Admin_Inbox" && (
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender:</strong>{" "}
@@ -133,7 +132,7 @@ function FileViewModal({ opened, onClose, file, role }) {
                 </Text>
               </GridCol>
             )}
-            {role === "Admin_Inbox" && (
+            {userRole === "Admin_Inbox" && (
               <GridCol span={6}>
                 <Text size="xl">
                   <strong style={{ color: "blue" }}>Sender Designation:</strong>{" "}
@@ -263,9 +262,18 @@ function FileViewModal({ opened, onClose, file, role }) {
               marginTop: 30,
             }}
           >
-            <Button color="#15ABFF" style={{ marginRight: "3%" , borderRadius: "8px" }}>
-              <DownloadSimple size={26} style={{ marginRight: "3px" }} />
-              Download File
+            <Button
+              component="a"
+              color="#15ABFF"
+              href={`${host}/${fileDetails.file}`}
+              target="_blank"
+              style={{
+                marginRight: "3%",
+                borderRadius: "8px",
+              }}
+            >
+              <FileText size={26} style={{ marginRight: "3px" }} />
+              Request Details File
             </Button>
           </div>
         </>
@@ -277,5 +285,13 @@ function FileViewModal({ opened, onClose, file, role }) {
     </Modal>
   );
 }
+
+FileViewModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  file: PropTypes.oneOfType([PropTypes.object, PropTypes.number]).isRequired,
+  userRole: PropTypes.oneOf(["Professor", "Admin_Inbox", "Admin_Processed"])
+    .isRequired,
+};
 
 export default FileViewModal;

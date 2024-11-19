@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import cx from "clsx";
 import { useState, useEffect } from "react";
 import {
@@ -9,9 +10,9 @@ import {
   Loader,
   Container,
 } from "@mantine/core";
-import classes from "../../styles/tableStyle.module.css";
 import { Eye, ClockCounterClockwise } from "@phosphor-icons/react";
 import axios from "axios";
+import classes from "../../styles/tableStyle.module.css";
 import { fetchProcessedRoute } from "../../../../routes/RSPCRoutes";
 import FileViewModal from "../modals/fileViewModal";
 import HistoryViewModal from "../modals/historyViewModal";
@@ -41,11 +42,11 @@ function ProcessedTable({ username }) {
               Authorization: `Token ${token}`,
               "Content-Type": "application/json",
             },
-            withCredentials: true, 
+            withCredentials: true,
           },
         );
         console.log("Fetched Processed Requests:", response.data);
-        setProcessedData(response.data); 
+        setProcessedData(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error during Axios GET:", error);
@@ -60,7 +61,7 @@ function ProcessedTable({ username }) {
     setSelectedFile(file);
     setViewModalOpened(true);
   };
-  
+
   const handleHistoryClick = (file) => {
     setSelectedFile(file);
     setHistoryModalOpened(true);
@@ -74,9 +75,13 @@ function ProcessedTable({ username }) {
         </Badge>
       </Table.Td>
       <Table.Td className={classes["row-content"]}>{row.uploader}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{row.file_extra_JSON.pid}</Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {row.file_extra_JSON.pid}
+      </Table.Td>
       <Table.Td className={classes["row-content"]}>{row.description}</Table.Td>
-      <Table.Td className={classes["row-content"]}>{new Date(row.upload_date).toLocaleDateString()}</Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {new Date(row.upload_date).toLocaleDateString()}
+      </Table.Td>
 
       <Table.Td className={classes["row-content"]}>
         <Button
@@ -142,7 +147,10 @@ function ProcessedTable({ username }) {
                 </Table.Td>
               </Table.Tr>
             ) : fetched ? (
-              <>{rows}</>
+              <>
+                <span />
+                {rows}
+              </>
             ) : (
               <Table.Tr>
                 <Table.Td colSpan="6" align="center">
@@ -159,7 +167,7 @@ function ProcessedTable({ username }) {
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFile}
-        role="Admin_Processed"
+        userRole="Admin_Processed"
       />
       <HistoryViewModal
         opened={historyModalOpened}
@@ -169,5 +177,9 @@ function ProcessedTable({ username }) {
     </div>
   );
 }
+
+ProcessedTable.propTypes = {
+  username: PropTypes.string.isRequired,
+};
 
 export default ProcessedTable;

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import cx from "clsx";
 import { useState, useEffect } from "react";
 import {
@@ -9,9 +10,9 @@ import {
   Badge,
   ScrollArea,
 } from "@mantine/core";
-import classes from "../../styles/tableStyle.module.css";
 import { ClockCounterClockwise, Eye } from "@phosphor-icons/react";
 import axios from "axios";
+import classes from "../../styles/tableStyle.module.css";
 import {
   fetchPIDsRoute,
   fetchExpenditureRequestsRoute,
@@ -249,7 +250,7 @@ function RequestTable({ username }) {
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFileID}
-        role="Professor"
+        userRole="Professor"
       />
       <HistoryViewModal
         opened={historyModalOpened}
@@ -259,5 +260,9 @@ function RequestTable({ username }) {
     </div>
   );
 }
+
+RequestTable.propTypes = {
+  username: PropTypes.string.isRequired,
+};
 
 export default RequestTable;

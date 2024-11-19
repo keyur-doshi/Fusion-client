@@ -1,18 +1,26 @@
+import PropTypes from "prop-types";
 import cx from "clsx";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Badge, ScrollArea, Text } from "@mantine/core";
+import {
+  Eye,
+  FileText,
+  PlusCircle,
+  FlagCheckered,
+} from "@phosphor-icons/react";
 import classes from "../../styles/tableStyle.module.css";
-import { Eye, FileText, PlusCircle } from "@phosphor-icons/react";
-import ProjectModal from "../modals/projectModal";
-import { rspc_admin_designation } from "../../helpers/designations";
+import ProjectViewModal from "../modals/projectViewModal";
+import ProjectActionModal from "../modals/projectActionModal";
+import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
 import { badgeColor } from "../../helpers/badgeColours";
 
 function ProjectTable({ setActiveTab, projectsData, username }) {
   const [scrolled, setScrolled] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [modalOpened, setModalOpened] = useState(false);
+  const [viewModalOpened, setViewModalOpened] = useState(false);
+  const [actionModalOpened, setActionModalOpened] = useState(false);
 
   const role = useSelector((state) => state.user.role);
 
@@ -27,7 +35,12 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
 
   const handleViewClick = (row) => {
     setSelectedProject(row);
-    setModalOpened(true);
+    setViewModalOpened(true);
+  };
+
+  const handleActionClick = (row) => {
+    setSelectedProject(row);
+    setActionModalOpened(true);
   };
 
   const rows = projectsData.map(
@@ -41,7 +54,9 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
           </Table.Td>
           <Table.Td className={classes["row-content"]}>{row.name}</Table.Td>
           <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
-          <Table.Td className={classes["row-content"]}>{row.sponsored_agency}</Table.Td>
+          <Table.Td className={classes["row-content"]}>
+            {row.sponsored_agency}
+          </Table.Td>
 
           {role === "Professor" && (
             <Table.Td className={classes["row-content"]}>
@@ -50,10 +65,27 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
                 variant="outline"
                 color="#15ABFF"
                 size="xs"
+                disabled={row.status !== "OnGoing"}
                 style={{ borderRadius: "8px" }}
               >
                 <FileText size={26} style={{ marginRight: "3px" }} />
                 Request
+              </Button>
+            </Table.Td>
+          )}
+
+          {username === rspc_admin && (
+            <Table.Td className={classes["row-content"]}>
+              <Button
+                onClick={() => handleActionClick(row)}
+                variant="outline"
+                color="#15ABFF"
+                size="xs"
+                disabled={row.status !== "OnGoing"}
+                style={{ borderRadius: "8px" }}
+              >
+                <FlagCheckered size={26} style={{ marginRight: "3px" }} />
+                Action
               </Button>
             </Table.Td>
           )}
@@ -89,15 +121,18 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
               <Table.Th className={classes["header-cell"]}>
                 Project Name
               </Table.Th>
-              <Table.Th className={classes["header-cell"]}>
-                Project ID
-              </Table.Th>
+              <Table.Th className={classes["header-cell"]}>Project ID</Table.Th>
               <Table.Th className={classes["header-cell"]}>
                 Sponsor Agency
               </Table.Th>
               {role === "Professor" && (
                 <Table.Th className={classes["header-cell"]}>
                   Request Application
+                </Table.Th>
+              )}
+              {username === rspc_admin && (
+                <Table.Th className={classes["header-cell"]}>
+                  Action Centre
                 </Table.Th>
               )}
               <Table.Th className={classes["header-cell"]}>
@@ -127,20 +162,36 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
             onClick={handleAddClick}
             color="green"
             size="s"
-            style={{ borderRadius: "8px" ,  padding: "7px 18px"}}
+            style={{ borderRadius: "8px", padding: "7px 18px" }}
           >
             <PlusCircle size={26} style={{ marginRight: "3px" }} />
             Add Project
           </Button>
         </div>
       )}
-      <ProjectModal
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
+      <ProjectViewModal
+        opened={viewModalOpened}
+        onClose={() => setViewModalOpened(false)}
         projectData={selectedProject}
+      />
+      <ProjectActionModal
+        opened={actionModalOpened}
+        onClose={() => setActionModalOpened(false)}
+        projectData={selectedProject}
+        setActiveTab={setActiveTab}
       />
     </div>
   );
 }
+
+ProjectTable.propTypes = {
+  projectsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      pid: PropTypes.number,
+    }),
+  ),
+  setActiveTab: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+};
 
 export default ProjectTable;
