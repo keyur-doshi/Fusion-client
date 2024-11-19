@@ -13,7 +13,7 @@ import {
   Grid,
   GridCol,
 } from "@mantine/core";
-import { FileText } from "@phosphor-icons/react";
+import { DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
 import { host } from "../../../../routes/globalRoutes";
 import {
@@ -262,7 +262,7 @@ function ProjectViewModal({ opened, onClose, projectData }) {
                 borderRadius: "8px",
               }}
             >
-              <FileText size={26} style={{ marginRight: "3px" }} />
+              <DownloadSimple size={26} style={{ marginRight: "3px" }} />
               Project Agreement File
             </Button>
           </div>

@@ -12,7 +12,7 @@ import {
   Grid,
   GridCol,
 } from "@mantine/core";
-import { FileText } from "@phosphor-icons/react";
+import { DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
 import { host } from "../../../../routes/globalRoutes";
 import { fetchFileRoute } from "../../../../routes/RSPCRoutes";
@@ -265,14 +265,14 @@ function FileViewModal({ opened, onClose, file, userRole }) {
             <Button
               component="a"
               color="#15ABFF"
-              href={`${host}/${fileDetails.file}`}
+              href={`${host}/${fileDetails.upload_file}`}
               target="_blank"
               style={{
                 marginRight: "3%",
                 borderRadius: "8px",
               }}
             >
-              <FileText size={26} style={{ marginRight: "3px" }} />
+              <DownloadSimple size={26} style={{ marginRight: "3px" }} />
               Request Details File
             </Button>
           </div>
