@@ -49,7 +49,6 @@ function ResearchProjects() {
         console.error("Error during Axios GET:", error);
       }
     };
-
     fetchProjects();
   }, []);
 

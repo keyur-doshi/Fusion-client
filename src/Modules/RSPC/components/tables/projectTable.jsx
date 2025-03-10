@@ -81,7 +81,7 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
                 variant="outline"
                 color="#15ABFF"
                 size="xs"
-                disabled={row.status !== "OnGoing"}
+                disabled={row.status === "Completed"}
                 style={{ borderRadius: "8px" }}
               >
                 <FlagCheckered size={26} style={{ marginRight: "3px" }} />
