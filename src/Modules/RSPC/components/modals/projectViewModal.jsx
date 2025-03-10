@@ -89,22 +89,27 @@ function ProjectViewModal({ opened, onClose, projectData }) {
     }
   }, [projectData]);
 
-  const staffRows = staffDetails.map((staff, index) => (
-    <tr key={index}>
-      <td>{staff.person}</td>
-      <td>{staff.designation}</td>
-      <td>{staff.qualification}</td>
-      <td>{staff.dept}</td>
-    </tr>
-  ));
-  const expenditureRows = expenditureDetails.map((item, index) => (
-    <tr key={index}>
-      <td>{item.item}</td>
-      <td>{item.cost}</td>
-      <td>{item.exptype}</td>
-      <td>{item.mode}</td>
-    </tr>
-  ));
+  const staffRows = staffDetails
+    .filter((staff) => staff.approval === "Approved")
+    .map((staff, index) => (
+      <tr key={index}>
+        <td>{staff.person}</td>
+        <td>{staff.designation}</td>
+        <td>{staff.qualification}</td>
+        <td>{staff.dept}</td>
+      </tr>
+    ));
+
+  const expenditureRows = expenditureDetails
+    .filter((item) => item.approval === "Approved")
+    .map((item, index) => (
+      <tr key={index}>
+        <td>{item.item}</td>
+        <td>{item.cost}</td>
+        <td>{item.exptype}</td>
+        <td>{item.mode}</td>
+      </tr>
+    ));
 
   return (
     <Modal opened={opened} onClose={onClose} size="xl">
