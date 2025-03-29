@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable react/jsx-props-no-spreading */
 import PropTypes from "prop-types";
 import React, { useState, useEffect } from "react";
 import {
@@ -13,22 +13,61 @@ import {
   Grid,
   Text,
   Alert,
-  Divider
+  Divider,
 } from "@mantine/core";
-import { FileText, User, ThumbsUp, ThumbsDown } from "@phosphor-icons/react";
+import { User, ThumbsUp, ThumbsDown, Trash } from "@phosphor-icons/react";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import classes from "../../styles/formStyle.module.css";
-import { projectFormSubmissionRoute } from "../../../../routes/RSPCRoutes";
-import { profIDs } from "../../helpers/professors";
+import {
+  fetchProfIDsRoute,
+  projectFormSubmissionRoute,
+} from "../../../../routes/RSPCRoutes";
 
-function ProjectForm({ setActiveTab }) {
-  const [file, setFile] = useState(null);
+function ProjectAdditionForm({ setActiveTab }) {
   const [successAlertVisible, setSuccessAlertVisible] = useState(false);
   const [failureAlertVisible, setFailureAlertVisible] = useState(false);
   const [coPIs, setCoPIs] = useState([]);
   const [showCoPISection, setShowCoPISection] = useState(false);
   const [totalBudget, setTotalBudget] = useState(0);
+
+  const [profIDs, setProfIDs] = useState([]);
+  useEffect(() => {
+    const storedProfIDs = localStorage.getItem("profIDs");
+    if (storedProfIDs) {
+      try {
+        const parsedProfIDs = JSON.parse(storedProfIDs);
+        if (Array.isArray(parsedProfIDs) && parsedProfIDs.length > 0) {
+          setProfIDs(parsedProfIDs); // Use stored data if valid
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing stored profIDs:", error);
+      }
+    }
+
+    const fetchProfIDs = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.error("No authentication token found!");
+      try {
+        const response = await axios.get(fetchProfIDsRoute, {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        });
+        const profIDsArray = response.data.profIDs;
+        if (Array.isArray(profIDsArray) && profIDsArray.length > 0) {
+          localStorage.setItem("profIDs", JSON.stringify(profIDsArray)); // Store only array
+          setProfIDs(profIDsArray);
+        }
+      } catch (error) {
+        console.error("Error during Axios GET:", error);
+      }
+    };
+    fetchProfIDs();
+  }, []);
 
   const form = useForm({
     initialValues: {
@@ -45,24 +84,33 @@ function ProjectForm({ setActiveTab }) {
       submission_date: new Date().toISOString().split("T")[0],
       budget: [],
       overhead: "",
+      sanction_date: "",
+      sanctioned_amount: "",
       start_date: "",
       initial_amount: "",
     },
     validate: {
       name: (value) => (value ? null : "Project title is required"),
-      pi_id: (value) => (value ? null : "Fusion ID of the project investigator is required"),
-      access: (value) => (value ? null : "Project access specifier is required"),
+      pi_id: (value) =>
+        value ? null : "Fusion ID of the project investigator is required",
+      access: (value) =>
+        value ? null : "Project access specifier is required",
       type: (value) => (value ? null : "Project type is required"),
       dept: (value) => (value ? null : "Department is required"),
       category: (value) => (value ? null : "Project category is required"),
-      sponsored_agency: (value) => (value ? null : "Project sponsor agency is required"),
-      duration: (value) => value > 0 ? null : ("Project duration must be greater than 0"),
+      sponsored_agency: (value) =>
+        value ? null : "Project sponsor agency is required",
+      duration: (value) =>
+        value > 0 ? null : "Project duration must be greater than 0",
     },
   });
 
   const handleAddCoPI = () => {
     setShowCoPISection(true); // Make Co-PI section visible if hidden
-    setCoPIs([...coPIs, { type: "Internal", copi_id: "", affiliation: "IIITDMJ" }]);
+    setCoPIs([
+      ...coPIs,
+      { type: "Internal", copi_id: "", affiliation: "IIITDMJ" },
+    ]);
   };
 
   const handleCoPIChange = (index, field, value) => {
@@ -90,11 +138,11 @@ function ProjectForm({ setActiveTab }) {
     form.setFieldValue("duration", months);
 
     const newBudget = Array.from({ length: years }, () => ({
-        manpower: "",
-        travel: "",
-        contingency: "",
-        consumables: "",
-        equipments: "",
+      manpower: "",
+      travel: "",
+      contingency: "",
+      consumables: "",
+      equipments: "",
     }));
     form.setFieldValue("overhead", "");
     form.setFieldValue("budget", newBudget);
@@ -103,18 +151,21 @@ function ProjectForm({ setActiveTab }) {
   const calculateGrandTotal = (budget, overhead) => {
     if (!budget || !Array.isArray(budget)) return 0;
     const total = budget.reduce((acc, year) => {
-      const recurringTotal = (year.manpower || 0) + (year.travel || 0) + (year.contingency || 0) + (year.consumables || 0);
+      const recurringTotal =
+        (year.manpower || 0) +
+        (year.travel || 0) +
+        (year.contingency || 0) +
+        (year.consumables || 0);
       const nonRecurringTotal = year.equipments || 0;
       return acc + recurringTotal + nonRecurringTotal;
     }, 0);
     const grandTotal = total + (overhead || 0);
-    setTotalBudget(grandTotal); // Store in state for backend submission 
+    setTotalBudget(grandTotal); // Store in state for backend submission
     return grandTotal; // Display in input field
   };
   useEffect(() => {
     calculateGrandTotal(form.values.budget, form.values.overhead);
   }, [form.values.budget, form.values.overhead]);
-  
 
   const handleSubmit = async (values) => {
     const token = localStorage.getItem("authToken");
@@ -137,17 +188,12 @@ function ProjectForm({ setActiveTab }) {
       formData.append("total_budget", totalBudget);
       formData.append("budget", JSON.stringify(values.budget));
       formData.append("overhead", values.overhead);
-      formData.append("start_date", values.start_date);
-      formData.append("initial_amount", values.initial_amount);
-      if(Number.isNaN(new Date(values.start_date).getTime())) formData.append("status", "Submitted");
-      else formData.append("status", "OnGoing");
-      if (file) {
-        formData.append("file", file);
-      }
+      formData.append("sanction_date", values.sanction_date);
+      formData.append("sanctioned_amount", values.sanctioned_amount);
+      formData.append("status", "HoD Forward");
       formData.forEach((value, key) => {
         console.log(key, value);
       });
-      formData.append("rem_budget", totalBudget);
       const response = await axios.post(projectFormSubmissionRoute, formData, {
         headers: {
           Authorization: `Token ${token}`,
@@ -180,7 +226,6 @@ function ProjectForm({ setActiveTab }) {
           </Title>
 
           <Grid gutter="xl">
-
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
                 Project Title <span style={{ color: "red" }}>*</span>
@@ -196,7 +241,12 @@ function ProjectForm({ setActiveTab }) {
                 Project Investigator <span style={{ color: "red" }}>*</span>
               </Text>
               <div
-                style={{ display: "flex", alignItems: "space-between", gap: "10px", width:"100%" }}
+                style={{
+                  display: "flex",
+                  alignItems: "space-between",
+                  gap: "10px",
+                  width: "100%",
+                }}
               >
                 <Select
                   placeholder="Choose Fusion username of professor"
@@ -211,7 +261,11 @@ function ProjectForm({ setActiveTab }) {
                   onClick={handleAddCoPI}
                   color="cyan"
                   variant="outline"
-                  style={{ borderRadius: "8px", textAlign:"center", flexShrink: 0}}
+                  style={{
+                    borderRadius: "8px",
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
                 >
                   Add Co-PI
                 </Button>
@@ -220,33 +274,51 @@ function ProjectForm({ setActiveTab }) {
 
             {showCoPISection && (
               <Grid.Col span={12}>
-                <Text size="lg" weight={500} className={classes.fieldLabel} style={{textAlign:"center"}}>
+                <Text
+                  size="lg"
+                  weight={500}
+                  className={classes.fieldLabel}
+                  style={{ textAlign: "center" }}
+                >
                   Co-Principal Investigators
                 </Text>
                 {coPIs.map((coPI, index) => (
                   <Grid key={index} gutter="sm" align="center">
                     <Grid.Col span={3}>
-                      <Text size="lg" weight={500} className={classes.fieldLabel}>
+                      <Text
+                        size="lg"
+                        weight={500}
+                        className={classes.fieldLabel}
+                      >
                         Co-PI Type <span style={{ color: "red" }}>*</span>
                       </Text>
                       <Select
                         placeholder="Choose whether Co-PI is Internal or External"
                         value={coPI.type || "Internal"}
-                        onChange={(value) => handleCoPIChange(index, "type", value)}
-                        data={["Internal","External"]}
+                        onChange={(value) =>
+                          handleCoPIChange(index, "type", value)
+                        }
+                        data={["Internal", "External"]}
                         icon={<User />}
                       />
                     </Grid.Col>
 
                     {coPI.type === "Internal" ? (
                       <Grid.Col span={8}>
-                        <Text size="lg" weight={500} className={classes.fieldLabel}>
-                          {`Identity of Co-PI ${index + 1}`}<span style={{ color: "red" }}>*</span>
+                        <Text
+                          size="lg"
+                          weight={500}
+                          className={classes.fieldLabel}
+                        >
+                          {`Identity of Co-PI ${index + 1}`}
+                          <span style={{ color: "red" }}>*</span>
                         </Text>
                         <Select
                           placeholder="Choose Fusion username of professor"
                           value={coPI.copi_id}
-                          onChange={(value) => handleCoPIChange(index, "copi_id", value)}
+                          onChange={(value) =>
+                            handleCoPIChange(index, "copi_id", value)
+                          }
                           data={profIDs}
                           icon={<User />}
                           searchable
@@ -256,34 +328,63 @@ function ProjectForm({ setActiveTab }) {
                     ) : (
                       <>
                         <Grid.Col span={4}>
-                          <Text size="lg" weight={500} className={classes.fieldLabel}>
-                            {`Identity of Co-PI ${index + 1}`}<span style={{ color: "red" }}>*</span>
+                          <Text
+                            size="lg"
+                            weight={500}
+                            className={classes.fieldLabel}
+                          >
+                            {`Identity of Co-PI ${index + 1}`}
+                            <span style={{ color: "red" }}>*</span>
                           </Text>
                           <TextInput
                             placeholder="Enter name of external Co-PI"
                             value={coPI.copi_id}
-                            onChange={(e) => handleCoPIChange(index, "copi_id", e.target.value)}
+                            onChange={(e) =>
+                              handleCoPIChange(index, "copi_id", e.target.value)
+                            }
                             error={!coPI.copi_id && "This field is required"}
                           />
                         </Grid.Col>
 
                         <Grid.Col span={4}>
-                          <Text size="lg" weight={500} className={classes.fieldLabel}>
+                          <Text
+                            size="lg"
+                            weight={500}
+                            className={classes.fieldLabel}
+                          >
                             External Co-PI Affiliation
                           </Text>
                           <TextInput
                             placeholder="Enter affiliation of external Co-PI"
                             value={coPI.affiliation}
-                            onChange={(e) => handleCoPIChange(index, "affiliation", e.target.value)}
+                            onChange={(e) =>
+                              handleCoPIChange(
+                                index,
+                                "affiliation",
+                                e.target.value,
+                              )
+                            }
                           />
                         </Grid.Col>
                       </>
                     )}
                     <Grid.Col span={1}>
-                      <Text size="lg" weight={500} className={classes.fieldLabel}>
+                      <Text
+                        size="lg"
+                        weight={500}
+                        className={classes.fieldLabel}
+                      >
                         Remove
                       </Text>
-                      <Button onClick={() => handleRemoveCoPI(index)} color="red" variant="outline" style={{ width: "100%", borderRadius: "8px" }}> - </Button>
+                      <Button
+                        onClick={() => handleRemoveCoPI(index)}
+                        color="red"
+                        variant="outline"
+                        style={{ width: "100%", borderRadius: "8px" }}
+                      >
+                        {" "}
+                        <Trash />{" "}
+                      </Button>
                     </Grid.Col>
                   </Grid>
                 ))}
@@ -292,7 +393,8 @@ function ProjectForm({ setActiveTab }) {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project To Be Operated By <span style={{ color: "red" }}>*</span>
+                Project To Be Operated By{" "}
+                <span style={{ color: "red" }}>*</span>
               </Text>
               <Radio.Group {...form.getInputProps("access")}>
                 <Radio value="Co" label="Only PI" />
@@ -301,7 +403,9 @@ function ProjectForm({ setActiveTab }) {
             </Grid.Col>
 
             {/* -------------- */}
-            <Grid.Col span={12}><Divider my="lg" label="X X X" labelPosition="center" size="md"/></Grid.Col>
+            <Grid.Col span={12}>
+              <Divider my="lg" label="X X X" labelPosition="center" size="md" />
+            </Grid.Col>
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
@@ -325,9 +429,9 @@ function ProjectForm({ setActiveTab }) {
                   "ECE",
                   "ME",
                   "SM",
-                  "Des",
+                  "Design",
                   "NS",
-                  "LA",
+                  "Liberal Arts",
                   "None Of The Above",
                 ]}
                 icon={<User />}
@@ -375,13 +479,16 @@ function ProjectForm({ setActiveTab }) {
                 {...form.getInputProps("description")}
               />
             </Grid.Col>
-            
+
             {/* -------------- */}
-            <Grid.Col span={12}><Divider my="lg" label="X X X" labelPosition="center" size="md"/></Grid.Col>
+            <Grid.Col span={12}>
+              <Divider my="lg" label="X X X" labelPosition="center" size="md" />
+            </Grid.Col>
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Duration (in months) <span style={{ color: "red" }}>*</span>
+                Project Duration (in months){" "}
+                <span style={{ color: "red" }}>*</span>
               </Text>
               <NumberInput
                 placeholder="Enter number of months to complete the project"
@@ -392,7 +499,7 @@ function ProjectForm({ setActiveTab }) {
 
             <Grid.Col span={6}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Submission Date <span style={{ color: "red" }}>*</span>
+                Proposal Submission Date <span style={{ color: "red" }}>*</span>
               </Text>
               <input
                 type="date"
@@ -401,7 +508,7 @@ function ProjectForm({ setActiveTab }) {
                 className={classes.dateInput}
               />
             </Grid.Col>
-            
+
             <Grid.Col span={12}>
               <Text size="lg" weight={500} className={classes.fieldLabel}>
                 Project Budget (in INR) <span style={{ color: "red" }}>*</span>
@@ -412,8 +519,8 @@ function ProjectForm({ setActiveTab }) {
                 styles={{
                   input: {
                     backgroundColor: "#f0f0f0", // Light grey background
-                    cursor: "not-allowed",      // Show forbidden cursor
-                    textAlign: "center"
+                    cursor: "not-allowed", // Show forbidden cursor
+                    textAlign: "center",
                   },
                 }}
               />
@@ -421,122 +528,107 @@ function ProjectForm({ setActiveTab }) {
 
             {form.values.duration && (
               <Grid.Col key={form.values.duration} span={12}>
-                <Text size="lg" weight={500} className={classes.fieldLabel}> Recurring Expenses </Text>
-                {Array.from({ length: Math.ceil((form.values.duration || 0) / 12) },(_, year) => (
-                  <React.Fragment key={year}>
-                    <Text size="lg" weight={500} style={{textAlign:"center"}}> Year {year + 1} Budget </Text>
-                    <Grid gutter="xl" mb="16px">
-                      <Grid.Col span={3}>
-                        <NumberInput
-                          placeholder="Manpower (in INR)"
-                          min = {0}
-                          {...form.getInputProps(`budget.${year}.manpower`)}
-                        />
-                      </Grid.Col>
+                <Text size="lg" weight={500} className={classes.fieldLabel}>
+                  {" "}
+                  Recurring Expenses{" "}
+                </Text>
+                {Array.from(
+                  { length: Math.ceil((form.values.duration || 0) / 12) },
+                  (_, year) => (
+                    <React.Fragment key={year}>
+                      <Text
+                        size="lg"
+                        weight={500}
+                        style={{ textAlign: "center" }}
+                      >
+                        {" "}
+                        Year {year + 1} Budget{" "}
+                      </Text>
+                      <Grid gutter="xl" mb="16px">
+                        <Grid.Col span={3}>
+                          <NumberInput
+                            placeholder="Manpower (in INR)"
+                            min={0}
+                            {...form.getInputProps(`budget.${year}.manpower`)}
+                          />
+                        </Grid.Col>
 
-                      <Grid.Col span={3}>
-                        <NumberInput
-                          placeholder="Travel (in INR)"
-                          min = {0}
-                          {...form.getInputProps(`budget.${year}.travel`)}
-                        />
-                      </Grid.Col>
+                        <Grid.Col span={3}>
+                          <NumberInput
+                            placeholder="Travel (in INR)"
+                            min={0}
+                            {...form.getInputProps(`budget.${year}.travel`)}
+                          />
+                        </Grid.Col>
 
-                      <Grid.Col span={3}>
-                        <NumberInput
-                          placeholder="Contingency (in INR)"
-                          min = {0}
-                          {...form.getInputProps(`budget.${year}.contingency`)}
-                        />
-                      </Grid.Col>
+                        <Grid.Col span={3}>
+                          <NumberInput
+                            placeholder="Contingency (in INR)"
+                            min={0}
+                            {...form.getInputProps(
+                              `budget.${year}.contingency`,
+                            )}
+                          />
+                        </Grid.Col>
 
-                      <Grid.Col span={3}>
-                        <NumberInput
-                          placeholder="Consumables (in INR)"
-                          min = {0}
-                          {...form.getInputProps(`budget.${year}.consumables`)}
-                        />
-                      </Grid.Col>
-                    </Grid>
-                  </React.Fragment>
-                ))}
+                        <Grid.Col span={3}>
+                          <NumberInput
+                            placeholder="Consumables (in INR)"
+                            min={0}
+                            {...form.getInputProps(
+                              `budget.${year}.consumables`,
+                            )}
+                          />
+                        </Grid.Col>
+                      </Grid>
+                    </React.Fragment>
+                  ),
+                )}
 
-                <Text size="lg" weight={500} className={classes.fieldLabel}> Non-Recurring Expenses </Text>
-                {Array.from({ length: Math.ceil((form.values.duration || 0) / 12) },(_, year) => (
-                  <React.Fragment key={year}>
-                    <Text size="lg" weight={500} style={{textAlign:"center"}}> Year {year + 1} Budget </Text>
-                    <Grid gutter="xl" mb="16px">
-                      <Grid.Col span={12}>
-                        <NumberInput
-                          placeholder="Equipments (in INR)"
-                          min = {0}
-                          {...form.getInputProps(`budget.${year}.equipments`)}
-                        />
-                      </Grid.Col>
-                    </Grid>
-                  </React.Fragment>
-                ))}
+                <Text size="lg" weight={500} className={classes.fieldLabel}>
+                  {" "}
+                  Non-Recurring Expenses{" "}
+                </Text>
+                {Array.from(
+                  { length: Math.ceil((form.values.duration || 0) / 12) },
+                  (_, year) => (
+                    <React.Fragment key={year}>
+                      <Text
+                        size="lg"
+                        weight={500}
+                        style={{ textAlign: "center" }}
+                      >
+                        {" "}
+                        Year {year + 1} Budget{" "}
+                      </Text>
+                      <Grid gutter="xl" mb="16px">
+                        <Grid.Col span={12}>
+                          <NumberInput
+                            placeholder="Equipments (in INR)"
+                            min={0}
+                            {...form.getInputProps(`budget.${year}.equipments`)}
+                          />
+                        </Grid.Col>
+                      </Grid>
+                    </React.Fragment>
+                  ),
+                )}
 
-                <Text size="lg" weight={500} className={classes.fieldLabel}> Overhead </Text>
+                <Text size="lg" weight={500} className={classes.fieldLabel}>
+                  {" "}
+                  Overhead{" "}
+                </Text>
                 <Grid gutter="xl" mb="16px">
                   <Grid.Col span={12}>
                     <NumberInput
                       placeholder="Overhead Costs (in INR)"
-                      min = {0}
+                      min={0}
                       {...form.getInputProps("overhead")}
                     />
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
             )}
-
-            {/* ----------------------- */}
-            <Grid.Col span={12}><Divider my="lg" label="X X X" labelPosition="center" size="md"/></Grid.Col>
-
-            <Grid.Col span={6}>
-              <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Date Of Receiving First Funding
-              </Text>
-              <input
-                type="date"
-                {...form.getInputProps("start_date")}
-                className={classes.dateInput}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Amount Received In First Funding
-              </Text>
-              <NumberInput
-                placeholder="Initial Funds (in INR)"
-                {...form.getInputProps("initial_amount")}
-              />
-            </Grid.Col>
-
-            <Grid.Col span={6}>
-              <Text size="lg" weight={500} className={classes.fieldLabel}>
-                Project Agreement (Sanction Letter, MoU, etc.)
-              </Text>
-              <div className={classes.fileInputContainer}>
-                <Button
-                  variant="outline"
-                  color="#15ABFF"
-                  size="md"
-                  component="label"
-                  className={classes.fileInputButton}
-                  style={{ borderRadius: "8px" }}
-                >
-                  <FileText size={26} style={{ marginRight: "3px" }} />
-                  Choose File
-                  <input
-                    type="file"
-                    hidden
-                    onChange={(event) => setFile(event.currentTarget.files[0])}
-                  />
-                </Button>
-                {file && <span className={classes.fileName}>{file.name}</span>}
-              </div>
-            </Grid.Col>
           </Grid>
 
           <div className={classes.submitButtonContainer}>
@@ -581,8 +673,8 @@ function ProjectForm({ setActiveTab }) {
   );
 }
 
-ProjectForm.propTypes = {
+ProjectAdditionForm.propTypes = {
   setActiveTab: PropTypes.func.isRequired,
 };
 
-export default ProjectForm;
+export default ProjectAdditionForm;

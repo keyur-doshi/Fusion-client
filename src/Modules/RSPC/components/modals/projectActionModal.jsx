@@ -16,8 +16,8 @@ import { useForm } from "@mantine/form";
 import axios from "axios";
 import { ThumbsUp, ThumbsDown, FileText, Pencil } from "@phosphor-icons/react";
 import {
-  endProjectRoute,
   acceptProjectCompletionRoute,
+  projectClosureRoute,
 } from "../../../../routes/RSPCRoutes";
 import classes from "../../styles/formStyle.module.css";
 import { rspc_admin } from "../../helpers/designations";
@@ -33,8 +33,8 @@ function ProjectActionModal({ opened, onClose, projectData, setActiveTab }) {
   );
 
   const navigate = useNavigate();
-  const handleEditClick = (id) => {
-    navigate("/research/forms", { state: { projectID: id } });
+  const handleEditClick = () => {
+    navigate("/research/forms", { state: { projectData } });
   };
 
   const form = useForm({
@@ -61,13 +61,17 @@ function ProjectActionModal({ opened, onClose, projectData, setActiveTab }) {
       formData.forEach((value, key) => {
         console.log(key, value);
       });
-      const response = await axios.post(endProjectRoute(rspc_admin), formData, {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        projectClosureRoute(rspc_admin),
+        formData,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      });
+      );
       onClose();
       setAlertHeader("Project Termination Successful");
       setAlertBody(
@@ -139,7 +143,7 @@ function ProjectActionModal({ opened, onClose, projectData, setActiveTab }) {
                 {projectData.name}
               </Text>
               <Button
-                onClick={() => handleEditClick(projectData.pid)}
+                onClick={() => handleEditClick()}
                 color="green"
                 size="s"
                 style={{ borderRadius: "8px", padding: "7px 18px" }}

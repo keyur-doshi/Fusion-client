@@ -8,28 +8,38 @@ import {
   Eye,
   FileText,
   PlusCircle,
-  FlagCheckered,
+  ArrowBendDoubleUpRight,
 } from "@phosphor-icons/react";
 import classes from "../../styles/tableStyle.module.css";
 import ProjectViewModal from "../modals/projectViewModal";
-import ProjectActionModal from "../modals/projectActionModal";
-import { rspc_admin, rspc_admin_designation } from "../../helpers/designations";
+import ProjectApprovalModal from "../modals/projectApprovalModal";
+import ProjectClosureModal from "../modals/projectClosureModal";
 import { badgeColor } from "../../helpers/badgeColours";
 
-function ProjectTable({ setActiveTab, projectsData, username }) {
+function ProjectTable({ setActiveTab, projectsData }) {
   const [scrolled, setScrolled] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [viewModalOpened, setViewModalOpened] = useState(false);
-  const [actionModalOpened, setActionModalOpened] = useState(false);
+  const [projectApprovalModalOpened, setProjectApprovalModalOpened] =
+    useState(false);
+  const [projectClosureModalOpened, setProjectClosureModalOpened] =
+    useState(false);
 
   const role = useSelector((state) => state.user.role);
 
   const navigate = useNavigate();
-  const handleRequestClick = (id) => {
-    navigate("/research/forms", { state: { projectID: id } });
+  const handleProjectActionClick = (row) => {
+    if (role.includes("rspc_admin")) {
+      setActiveTab("3");
+    } else {
+      const tabIndex = row.status === "OnGoing" ? "2" : "1";
+      navigate("/research/forms", {
+        state: { data: row, initialTab: tabIndex },
+      });
+    }
   };
 
-  const handleAddClick = () => {
+  const handleProjectAddClick = () => {
     setActiveTab("3");
   };
 
@@ -38,78 +48,144 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
     setViewModalOpened(true);
   };
 
-  const handleActionClick = (row) => {
+  const handleProjectDecisionClick = (row) => {
     setSelectedProject(row);
-    setActionModalOpened(true);
+    if (row.end_approval === "Pending") {
+      setProjectClosureModalOpened(true);
+    } else {
+      setProjectApprovalModalOpened(true);
+    }
   };
 
-  const rows = projectsData.map(
-    (row, index) =>
-      (role !== "Professor" || row.pi_id === username) && (
-        <Table.Tr key={index}>
-          <Table.Td className={classes["row-content"]}>
-            <Badge color={badgeColor[row.status]} size="lg">
-              {row.status}
-            </Badge>
-          </Table.Td>
-          <Table.Td className={classes["row-content"]}>{row.name}</Table.Td>
-          <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
-          <Table.Td className={classes["row-content"]}>
-            {row.sponsored_agency}
-          </Table.Td>
+  const rows = projectsData.map((row, index) => (
+    <Table.Tr key={index}>
+      <Table.Td className={classes["row-content"]}>
+        <Badge color={badgeColor[row.status]} size="lg">
+          {row.status}
+        </Badge>
+      </Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.name}</Table.Td>
+      <Table.Td className={classes["row-content"]}>{row.pid}</Table.Td>
+      <Table.Td className={classes["row-content"]}>
+        {row.sponsored_agency}
+      </Table.Td>
 
-          {role === "Professor" && (
-            <Table.Td className={classes["row-content"]}>
-              <Button
-                onClick={() => handleRequestClick(row.pid)}
-                variant="outline"
-                color="#15ABFF"
-                size="xs"
-                disabled={row.status !== "OnGoing"}
-                style={{ borderRadius: "8px" }}
-              >
-                <FileText size={26} style={{ marginRight: "3px" }} />
-                Request
-              </Button>
-            </Table.Td>
-          )}
+      <Table.Td className={classes["row-content"]}>
+        {role.includes("HOD") ? (
+          <Button
+            onClick={() => handleProjectDecisionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={row.status !== "HoD Forward"}
+            style={{ borderRadius: "8px" }}
+          >
+            <ArrowBendDoubleUpRight size={26} style={{ marginRight: "3px" }} />
+            Forward File
+          </Button>
+        ) : role.includes("Professor") ? (
+          <Button
+            onClick={() => handleProjectActionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={row.status !== "Submitted" && row.status !== "OnGoing"}
+            style={{ borderRadius: "8px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            {row.status === "Submitted" ? "Register Project" : "Forms"}
+          </Button>
+        ) : !role.includes("SectionHead_RSPC") ? (
+          <Button
+            onClick={() => handleProjectActionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            style={{ borderRadius: "8px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            Forms
+          </Button>
+        ) : row.status === "RSPC Approval" || row.end_approval === "Pending" ? (
+          <Button
+            onClick={() => handleProjectDecisionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={
+              row.status !== "RSPC Approval" && row.end_approval !== "Pending"
+            }
+            style={{ borderRadius: "8px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            Dean Approval
+          </Button>
+        ) : (
+          <Button
+            onClick={() => handleProjectActionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={row.status !== "Registered" && row.status !== "OnGoing"}
+            style={{ borderRadius: "8px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            {row.status === "Registered" ? "Commence Project" : "Forms"}
+          </Button>
+        )}
+      </Table.Td>
 
-          {username === rspc_admin && (
-            <Table.Td className={classes["row-content"]}>
-              <Button
-                onClick={() => handleActionClick(row)}
-                variant="outline"
-                color="#15ABFF"
-                size="xs"
-                disabled={row.status === "Completed"}
-                style={{ borderRadius: "8px" }}
-              >
-                <FlagCheckered size={26} style={{ marginRight: "3px" }} />
-                Action
-              </Button>
-            </Table.Td>
-          )}
+      {/* {role.includes("Professor") && (
+        <Table.Td className={classes["row-content"]}>
+          <Button
+            onClick={() => handleRequestClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={row.status === "Completed"}
+            style={{ borderRadius: "8px" }}
+          >
+            <FileText size={26} style={{ marginRight: "3px" }} />
+            Request
+          </Button>
+        </Table.Td>
+      )}
 
-          <Table.Td className={classes["row-content"]}>
-            <Button
-              onClick={() => handleViewClick(row)}
-              variant="outline"
-              color="#15ABFF"
-              size="xs"
-              style={{ borderRadius: "8px" }}
-            >
-              <Eye size={26} style={{ margin: "3px" }} />
-              View
-            </Button>
-          </Table.Td>
-        </Table.Tr>
-      ),
-  );
+      {username === rspc_admin && (
+        <Table.Td className={classes["row-content"]}>
+          <Button
+            onClick={() => handleActionClick(row)}
+            variant="outline"
+            color="#15ABFF"
+            size="xs"
+            disabled={row.status === "Completed"}
+            style={{ borderRadius: "8px" }}
+          >
+            <FlagCheckered size={26} style={{ marginRight: "3px" }} />
+            Action
+          </Button>
+        </Table.Td>
+      )} */}
+
+      <Table.Td className={classes["row-content"]}>
+        <Button
+          onClick={() => handleViewClick(row)}
+          variant="outline"
+          color="#15ABFF"
+          size="xs"
+          style={{ borderRadius: "8px" }}
+        >
+          <Eye size={26} style={{ margin: "3px" }} />
+          View
+        </Button>
+      </Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <div style={{ padding: "3% 5%" }}>
       <ScrollArea
-        mah={300}
+        h={350}
         onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
       >
         <Table highlightOnHover>
@@ -125,16 +201,14 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
               <Table.Th className={classes["header-cell"]}>
                 Sponsor Agency
               </Table.Th>
-              {role === "Professor" && (
+              <Table.Th className={classes["header-cell"]}>
+                Action Centre
+              </Table.Th>
+              {/* {role.includes("Professor") && (
                 <Table.Th className={classes["header-cell"]}>
                   Request Application
                 </Table.Th>
-              )}
-              {username === rspc_admin && (
-                <Table.Th className={classes["header-cell"]}>
-                  Action Centre
-                </Table.Th>
-              )}
+              )} */}
               <Table.Th className={classes["header-cell"]}>
                 Project Info
               </Table.Th>
@@ -149,7 +223,7 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
           )}
         </Table>
       </ScrollArea>
-      {role === rspc_admin_designation && (
+      {role.includes("Professor") && (
         <div
           style={{
             display: "flex",
@@ -159,7 +233,7 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
           }}
         >
           <Button
-            onClick={handleAddClick}
+            onClick={handleProjectAddClick}
             color="green"
             size="s"
             style={{ borderRadius: "8px", padding: "7px 18px" }}
@@ -174,9 +248,15 @@ function ProjectTable({ setActiveTab, projectsData, username }) {
         onClose={() => setViewModalOpened(false)}
         projectData={selectedProject}
       />
-      <ProjectActionModal
-        opened={actionModalOpened}
-        onClose={() => setActionModalOpened(false)}
+      <ProjectApprovalModal
+        opened={projectApprovalModalOpened}
+        onClose={() => setProjectApprovalModalOpened(false)}
+        projectData={selectedProject}
+        setActiveTab={setActiveTab}
+      />
+      <ProjectClosureModal
+        opened={projectClosureModalOpened}
+        onClose={() => setProjectClosureModalOpened(false)}
         projectData={selectedProject}
         setActiveTab={setActiveTab}
       />
@@ -191,7 +271,6 @@ ProjectTable.propTypes = {
     }),
   ),
   setActiveTab: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
 };
 
 export default ProjectTable;

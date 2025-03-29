@@ -15,59 +15,28 @@ import {
 } from "@mantine/core";
 import { DownloadSimple } from "@phosphor-icons/react";
 import axios from "axios";
-import { host } from "../../../../routes/globalRoutes";
+import classes from "../../styles/formStyle.module.css";
 import {
-  fetchStaffRequestsRoute,
-  fetchExpenditureRequestsRoute,
+  fetchStaffPositionsRoute,
+  fetchBudgetRoute,
 } from "../../../../routes/RSPCRoutes";
 import { badgeColor } from "../../helpers/badgeColours";
+import { host } from "../../../../routes/globalRoutes";
 
 function ProjectViewModal({ opened, onClose, projectData }) {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
 
-  const [staffDetails, setStaffDetails] = useState([]);
+  const [staffPositions, setStaffPositions] = useState(null);
   useEffect(() => {
-    // console.log(projectData);
     if (opened && projectData) {
       setLoading(true);
-      const fetchStaff = async () => {
+      const fetchStaffPositions = async () => {
         const token = localStorage.getItem("authToken");
         if (!token) return console.error("No authentication token found!");
         try {
           const response = await axios.get(
-            fetchStaffRequestsRoute(projectData.pid),
-            {
-              headers: {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-              },
-              withCredentials: true, // Include credentials if necessary
-            },
-          );
-          console.log("Fetched Staff:", response.data);
-          setStaffDetails(response.data);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error during Axios GET:", error);
-          setLoading(false);
-          setFetched(false);
-        }
-      };
-      fetchStaff();
-    }
-  }, [projectData]);
-
-  const [expenditureDetails, setExpenditureDetails] = useState([]);
-  useEffect(() => {
-    if (opened && projectData) {
-      setLoading(true);
-      const fetchExpenditure = async () => {
-        const token = localStorage.getItem("authToken");
-        if (!token) return console.error("No authentication token found!");
-        try {
-          const response = await axios.get(
-            fetchExpenditureRequestsRoute(projectData.pid),
+            fetchStaffPositionsRoute(projectData.pid),
             {
               headers: {
                 Authorization: `Token ${token}`,
@@ -76,8 +45,8 @@ function ProjectViewModal({ opened, onClose, projectData }) {
               withCredentials: true,
             },
           );
-          console.log("Fetched Expenditure:", response.data);
-          setExpenditureDetails(response.data);
+          console.log("Fetched Staff Positions:", response.data);
+          setStaffPositions(response.data);
           setLoading(false);
         } catch (error) {
           console.error("Error during Axios GET:", error);
@@ -85,31 +54,37 @@ function ProjectViewModal({ opened, onClose, projectData }) {
           setFetched(false);
         }
       };
-      fetchExpenditure();
+      fetchStaffPositions();
     }
   }, [projectData]);
 
-  const staffRows = staffDetails
-    .filter((staff) => staff.approval === "Approved")
-    .map((staff, index) => (
-      <tr key={index}>
-        <td>{staff.person}</td>
-        <td>{staff.designation}</td>
-        <td>{staff.qualification}</td>
-        <td>{staff.dept}</td>
-      </tr>
-    ));
-
-  const expenditureRows = expenditureDetails
-    .filter((item) => item.approval === "Approved")
-    .map((item, index) => (
-      <tr key={index}>
-        <td>{item.item}</td>
-        <td>{item.cost}</td>
-        <td>{item.exptype}</td>
-        <td>{item.mode}</td>
-      </tr>
-    ));
+  const [budget, setBudget] = useState(null);
+  useEffect(() => {
+    if (opened && projectData) {
+      setLoading(true);
+      const fetchBudget = async () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return console.error("No authentication token found!");
+        try {
+          const response = await axios.get(fetchBudgetRoute(projectData.pid), {
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          });
+          console.log("Fetched Budget:", response.data);
+          setBudget(response.data);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error during Axios GET:", error);
+          setLoading(false);
+          setFetched(false);
+        }
+      };
+      fetchBudget();
+    }
+  }, [projectData]);
 
   return (
     <Modal opened={opened} onClose={onClose} size="xl">
@@ -142,17 +117,33 @@ function ProjectViewModal({ opened, onClose, projectData }) {
                 {projectData.pi_name} ({projectData.pi_id})
               </Text>
             </GridCol>
-            <GridCol span={6}>
+            <Grid.Col span={6}>
               <Text size="xl">
-                <strong style={{ color: "blue" }}>Sponsoring Agency:</strong>{" "}
-                {projectData.sponsored_agency}
+                <strong style={{ color: "blue" }}>
+                  Co-Principal Investigators:
+                </strong>
               </Text>
-            </GridCol>
+              {projectData.copis.length > 0 ? (
+                <ul style={{ paddingLeft: "20px", margin: "5px 0" }}>
+                  {projectData.copis.map((copi, index) => (
+                    <li key={index}>
+                      <Text size="lg">{copi}</Text>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Text color="dimmed">No Co-PIs</Text>
+              )}
+            </Grid.Col>
 
             <GridCol span={6}>
               <Text size="xl">
-                <strong style={{ color: "blue" }}>Department:</strong>{" "}
-                {projectData.dept}
+                <strong style={{ color: "blue" }}>
+                  Project To Be Operated By:
+                </strong>{" "}
+                {projectData.access === "Co"
+                  ? "Only PI"
+                  : "Either PI or Co-PI(s)"}
               </Text>
             </GridCol>
             <GridCol span={6}>
@@ -164,36 +155,14 @@ function ProjectViewModal({ opened, onClose, projectData }) {
 
             <GridCol span={6}>
               <Text size="xl">
-                <strong style={{ color: "blue" }}>Start Date:</strong>{" "}
-                {new Date(projectData.start_date).toLocaleDateString()}
+                <strong style={{ color: "blue" }}>Department:</strong>{" "}
+                {projectData.dept}
               </Text>
             </GridCol>
             <GridCol span={6}>
               <Text size="xl">
-                <strong style={{ color: "blue" }}>Deadline:</strong>{" "}
-                {new Date(projectData.deadline).toLocaleDateString()}
-              </Text>
-            </GridCol>
-
-            {projectData.finish_date && (
-              <GridCol span={6}>
-                <Text size="xl">
-                  <strong style={{ color: "blue" }}>Finish Date:</strong>{" "}
-                  {new Date(projectData.finish_date).toLocaleDateString()}
-                </Text>
-              </GridCol>
-            )}
-
-            <GridCol span={6}>
-              <Text size="xl">
-                <strong style={{ color: "blue" }}>Total Budget:</strong> ₹
-                {projectData.total_budget.toLocaleString()}
-              </Text>
-            </GridCol>
-            <GridCol span={6}>
-              <Text size="xl">
-                <strong style={{ color: "blue" }}>Remaining Budget:</strong> ₹
-                {projectData.rem_budget.toLocaleString()}
+                <strong style={{ color: "blue" }}>Sponsoring Agency:</strong>{" "}
+                {projectData.sponsored_agency}
               </Text>
             </GridCol>
 
@@ -203,74 +172,259 @@ function ProjectViewModal({ opened, onClose, projectData }) {
                 {projectData.category}
               </Text>
             </GridCol>
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Scheme:</strong>{" "}
+                {projectData.scheme}
+              </Text>
+            </GridCol>
+            <Grid.Col span={6}>
+              <Text size="xl">
+                <strong
+                  style={{
+                    color: "blue",
+                    textAlign: "center",
+                    width: "100%",
+                  }}
+                >
+                  Project Agreement (Sanction Letter, MoU, etc.)
+                </strong>
+              </Text>
+              {projectData.file && (
+                <Button
+                  variant="outline"
+                  color="#15ABFF"
+                  size="md"
+                  className={classes.fileInputButton}
+                  style={{ borderRadius: "8px" }}
+                  component="a"
+                  href={`${host}/${projectData.file}`} // Directly access the file URL
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <DownloadSimple size={26} style={{ marginRight: "3px" }} />
+                  Open File
+                </Button>
+              )}
+            </Grid.Col>
+            <GridCol span={12}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Project Abstract:</strong>{" "}
+                {projectData.description}
+              </Text>
+            </GridCol>
+
+            <Grid.Col span={12}>
+              <Divider my="lg" label="X X X" labelPosition="center" size="md" />
+            </Grid.Col>
+
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>
+                  Proposal Submission Date:
+                </strong>{" "}
+                {new Date(projectData.submission_date).toLocaleDateString()}
+              </Text>
+            </GridCol>
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>
+                  Project Sanction Date:
+                </strong>{" "}
+                {new Date(projectData.sanction_date).toLocaleDateString()}
+              </Text>
+            </GridCol>
+
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Project Duration:</strong>{" "}
+                {projectData.duration} months
+              </Text>
+            </GridCol>
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>
+                  Project Commencement Date:
+                </strong>{" "}
+                {new Date(projectData.start_date).toLocaleDateString()}
+              </Text>
+            </GridCol>
+
+            <Grid.Col span={12}>
+              <Divider my="lg" label="X X X" labelPosition="center" size="md" />
+            </Grid.Col>
+
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>
+                  Total Proposed Budget:
+                </strong>{" "}
+                INR {projectData.total_budget}
+              </Text>
+            </GridCol>
+            <GridCol span={6}>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>
+                  Total Sanctioned Amount:
+                </strong>{" "}
+                INR {projectData.sanctioned_amount}
+              </Text>
+            </GridCol>
+            {budget && (
+              <GridCol span={6}>
+                <Text size="xl">
+                  <strong style={{ color: "blue" }}>Current Funds:</strong> INR{" "}
+                  {budget.current_funds}
+                </Text>
+              </GridCol>
+            )}
+            <Grid.Col span={6}>
+              <Text size="xl">
+                <strong
+                  style={{
+                    color: "blue",
+                    textAlign: "center",
+                    width: "100%",
+                  }}
+                >
+                  Project Registration
+                </strong>
+              </Text>
+              {projectData.registration_form && (
+                <Button
+                  variant="outline"
+                  color="#15ABFF"
+                  size="md"
+                  className={classes.fileInputButton}
+                  style={{ borderRadius: "8px" }}
+                  component="a"
+                  href={`${host}/${projectData.registration_form}`} // Directly access the file URL
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <DownloadSimple size={26} style={{ marginRight: "3px" }} />
+                  Open Registration
+                </Button>
+              )}
+            </Grid.Col>
           </Grid>
-          <Text size="md" style={{ marginBottom: 20 }}>
-            {projectData.description}
-          </Text>
 
-          <Divider
-            my="lg"
-            label={
-              <Text size="xl" weight={600}>
-                Project Staff
+          {budget && Object.keys(budget).length > 0 && (
+            <>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Budget Heads</strong>
               </Text>
-            }
-            labelPosition="center"
-          />
-          <Table highlightOnHover>
-            <thead style={{ textAlign: "left" }}>
-              <tr>
-                <th>Name</th>
-                <th>Designation</th>
-                <th>Qualification</th>
-                <th>Department</th>
-              </tr>
-            </thead>
-            <tbody>{staffRows}</tbody>
-          </Table>
-
-          <Divider
-            my="lg"
-            label={
-              <Text size="xl" weight={600}>
-                Expenditure Sheet
+              <Table striped>
+                <thead style={{ textAlign: "left" }}>
+                  <tr>
+                    <th>
+                      <Text size="lg">
+                        <strong>Category</strong>
+                      </Text>
+                    </th>
+                    {budget.manpower.map((_, index) => (
+                      <th key={index}>
+                        <Text size="lg" weight="bold">
+                          <strong>Year {index + 1}</strong>
+                        </Text>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    "manpower",
+                    "travel",
+                    "contingency",
+                    "consumables",
+                    "equipments",
+                  ].map((category) => (
+                    <tr key={category}>
+                      <td>
+                        <Text size="lg">
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </Text>
+                      </td>
+                      {budget[category].map((value, index) => (
+                        <td key={index}>
+                          <Text size="lg">{value}</Text>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Overhead Expenses:</strong>{" "}
+                INR {budget.overhead}
               </Text>
-            }
-            labelPosition="center"
-          />
-          <Table highlightOnHover>
-            <thead style={{ textAlign: "left" }}>
-              <tr>
-                <th>Item</th>
-                <th>Cost</th>
-                <th>Expenditure Type</th>
-                <th>Purchase Method</th>
-              </tr>
-            </thead>
-            <tbody>{expenditureRows}</tbody>
-          </Table>
+            </>
+          )}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: 30,
-            }}
-          >
-            <Button
-              component="a"
-              color="#15ABFF"
-              href={`${host}/${projectData.file}`}
-              target="_blank"
-              style={{
-                marginRight: "3%",
-                borderRadius: "8px",
-              }}
-            >
-              <DownloadSimple size={26} style={{ marginRight: "3px" }} />
-              Project Agreement File
-            </Button>
-          </div>
+          {staffPositions && Object.keys(staffPositions).length > 0 && (
+            <>
+              <Divider my="lg" label="X X X" labelPosition="center" size="md" />
+              <Text size="xl">
+                <strong style={{ color: "blue" }}>Project Personnel</strong>
+              </Text>
+              <Table striped>
+                <thead style={{ textAlign: "left" }}>
+                  <tr>
+                    <th>
+                      <Text size="lg">
+                        <strong>Designation</strong>
+                      </Text>
+                    </th>
+                    <th>
+                      <Text size="lg">
+                        <strong>Available Spots</strong>
+                      </Text>
+                    </th>
+                    <th>
+                      <Text size="lg">
+                        <strong>Occupied Spots</strong>
+                      </Text>
+                    </th>
+                    <th>
+                      <Text size="lg">
+                        <strong>Current Staff</strong>
+                      </Text>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(staffPositions.positions).map((position) => (
+                    <tr key={position}>
+                      <td>
+                        <Text size="lg">{position}</Text>
+                      </td>
+                      <td>
+                        <Text size="lg">
+                          {staffPositions.positions[position][0]}
+                        </Text>
+                      </td>
+                      <td>
+                        <Text size="lg">
+                          {staffPositions.positions[position][1]}
+                        </Text>
+                      </td>
+                      <td>
+                        <Text size="lg">
+                          {staffPositions.incumbents[position]?.length > 0
+                            ? staffPositions.incumbents[position].map(
+                                (incumbent, index) => (
+                                  <div key={index}>{incumbent.name}</div>
+                                ),
+                              )
+                            : "None"}
+                        </Text>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </>
+          )}
         </>
       ) : (
         <Text color="red" size="xl" weight={700} align="center">
@@ -290,17 +444,22 @@ ProjectViewModal.propTypes = {
     status: PropTypes.string.isRequired,
     pi_name: PropTypes.string,
     pi_id: PropTypes.string.isRequired,
+    access: PropTypes.string,
     sponsored_agency: PropTypes.string.isRequired,
     dept: PropTypes.string,
+    scheme: PropTypes.string,
     type: PropTypes.string,
     start_date: PropTypes.string,
-    deadline: PropTypes.string,
-    finish_date: PropTypes.string,
+    submission_date: PropTypes.string,
+    sanction_date: PropTypes.string,
     total_budget: PropTypes.number,
-    rem_budget: PropTypes.number,
+    sanctioned_amount: PropTypes.number,
+    duration: PropTypes.number,
+    copis: PropTypes.arrayOf(PropTypes.string),
     category: PropTypes.string,
     description: PropTypes.string,
     file: PropTypes.string,
+    registration_form: PropTypes.string,
   }).isRequired,
 };
 

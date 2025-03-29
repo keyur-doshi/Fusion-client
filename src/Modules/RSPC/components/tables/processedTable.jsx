@@ -14,7 +14,7 @@ import { Eye, ClockCounterClockwise } from "@phosphor-icons/react";
 import axios from "axios";
 import classes from "../../styles/tableStyle.module.css";
 import { fetchProcessedRoute } from "../../../../routes/RSPCRoutes";
-import FileViewModal from "../modals/fileViewModal";
+import StaffViewModal from "../modals/staffViewModal";
 import HistoryViewModal from "../modals/historyViewModal";
 import { designations } from "../../helpers/designations";
 import { badgeColor } from "../../helpers/badgeColours";
@@ -163,7 +163,7 @@ function ProcessedTable({ username }) {
           </Table.Tbody>
         </Table>
       </ScrollArea>
-      <FileViewModal
+      <StaffViewModal
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFile}

@@ -9,41 +9,64 @@ import { Tabs, Button, Flex, Select, Text } from "@mantine/core";
 import { useLocation } from "react-router-dom";
 import classes from "./styles/researchProjectsStyle.module.css";
 import CustomRSPCBreadcrumbs from "./components/RSPCBreadcrumbs.jsx";
-import StaffForm from "./components/forms/staffForm.jsx";
-import ExpenditureForm from "./components/forms/expenditureForm.jsx";
-import CompletionForm from "./components/forms/completionForm.jsx";
-import EditForm from "./components/forms/editForm.jsx";
+import JoiningReportAndIDCardForm from "./components/forms/joiningReportAndIDCardForm.jsx";
+import AdvertisementAndCommitteeApprovalForm from "./components/forms/advertisementAndCommitteeApprovalForm.jsx";
+// import ExpenditureForm from "./components/forms/expenditureForm.jsx";
+import SelectionCommitteeReportForm from "./components/forms/selectionCommitteeReportForm.jsx";
+import ProjectClosureForm from "./components/forms/projectClosureForm.jsx";
+import ProjectRegisterForm from "./components/forms/projectRegisterForm.jsx";
 import Notifications from "./components/notifications.jsx";
+import Appendix from "./components/forms/appendix.jsx";
+import ProjectCommencementForm from "./components/forms/projectCommencementForm.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function RequestForms() {
-  const [activeTab, setActiveTab] = useState("1");
   const role = useSelector((state) => state.user.role);
   const [sortedBy, setSortedBy] = useState("Most Recent");
   const tabsListRef = useRef(null);
   const location = useLocation();
-  const { projectID } = location.state || {};
+  const { data, initialTab } = location.state || {};
+  const [activeTab, setActiveTab] = useState(initialTab || "1");
 
   const tabItems = [{ title: "Notifications", component: <Notifications /> }];
-  if (role === "Professor") {
+  if (role.includes("Professor")) {
     tabItems.push(
-      { title: "Staff", component: <StaffForm projectID={projectID} /> },
       {
-        title: "Expenditure",
-        component: <ExpenditureForm projectID={projectID} />,
+        title: "Project Registration",
+        component: <ProjectRegisterForm projectData={data} />,
       },
       {
-        title: "Completion",
-        component: <CompletionForm projectID={projectID} />,
+        title: "Advertisement And Committee Approval",
+        component: <AdvertisementAndCommitteeApprovalForm projectData={data} />,
+      },
+      {
+        title: "Selection Committee Report",
+        component: <SelectionCommitteeReportForm staffData={data} />,
+      },
+      {
+        title: "Joining Report And ID Card",
+        component: <JoiningReportAndIDCardForm staffData={data} />,
+      },
+      // {
+      //   title: "Expenditure",
+      //   component: <ExpenditureForm projectData={data} />,
+      // },
+      {
+        title: "UC/SE And Project Closure",
+        component: <ProjectClosureForm projectData={data} />,
       },
     );
-  } else {
+  } else if (role.includes("SectionHead_RSPC")) {
     tabItems.push({
-      title: "Edit",
-      component: <EditForm projectID={projectID} />,
+      title: "Project Commencement And First Funding",
+      component: <ProjectCommencementForm projectData={data} />,
     });
   }
+  tabItems.push({
+    title: "Form Appendix",
+    component: <Appendix />,
+  });
 
   const handleTabChange = (direction) => {
     const newIndex =

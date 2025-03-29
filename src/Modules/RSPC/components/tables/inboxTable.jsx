@@ -13,7 +13,7 @@ import { Eye, FileText } from "@phosphor-icons/react";
 import axios from "axios";
 import classes from "../../styles/tableStyle.module.css";
 import { fetchInboxRoute } from "../../../../routes/RSPCRoutes";
-import FileViewModal from "../modals/fileViewModal";
+import StaffViewModal from "../modals/staffViewModal";
 import FileActionsModal from "../modals/fileActionsModal";
 import { designations } from "../../helpers/designations";
 
@@ -157,7 +157,7 @@ function InboxTable({ username, setActiveTab }) {
           </Table.Tbody>
         </Table>
       </ScrollArea>
-      <FileViewModal
+      <StaffViewModal
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFile}

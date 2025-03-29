@@ -14,34 +14,25 @@ import { ClockCounterClockwise, Eye } from "@phosphor-icons/react";
 import axios from "axios";
 import classes from "../../styles/tableStyle.module.css";
 import {
-  fetchPIDsRoute,
   fetchExpenditureRequestsRoute,
-  fetchStaffRequestsRoute,
+  fetchStaffRoute,
+  fetchPIDsRoute,
 } from "../../../../routes/RSPCRoutes";
-import FileViewModal from "../modals/fileViewModal";
+import StaffViewModal from "../modals/staffViewModal";
 import HistoryViewModal from "../modals/historyViewModal";
 import { badgeColor } from "../../helpers/badgeColours";
 
 function RequestTable({ username }) {
   const [scrolled, setScrolled] = useState(false);
-  const [PIDs, setPIDs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(true);
 
   const [selectedFileID, setSelectedFileID] = useState(null);
   const [viewModalOpened, setViewModalOpened] = useState(false);
   const [historyModalOpened, setHistoryModalOpened] = useState(false);
-  const handleViewClick = (file) => {
-    setSelectedFileID(file);
-    setViewModalOpened(true);
-  };
-  const handleHistoryClick = (file) => {
-    setSelectedFileID(file);
-    setHistoryModalOpened(true);
-  };
 
+  const [PIDs, setPIDs] = useState([]);
   useEffect(() => {
-    setLoading(true);
     const fetchPIDs = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
@@ -55,15 +46,21 @@ function RequestTable({ username }) {
         });
         console.log("Fetched PIDs:", response.data);
         setPIDs(response.data);
-        setLoading(false);
       } catch (error) {
         console.error("Error during Axios GET:", error);
-        setLoading(false);
-        setFetched(false);
       }
     };
     fetchPIDs();
   }, [username]);
+
+  const handleViewClick = (file) => {
+    setSelectedFileID(file);
+    setViewModalOpened(true);
+  };
+  const handleHistoryClick = (file) => {
+    setSelectedFileID(file);
+    setHistoryModalOpened(true);
+  };
 
   const [expenditureRequests, setExpenditureRequests] = useState([]);
   const [staffRequests, setStaffRequests] = useState([]);
@@ -86,7 +83,7 @@ function RequestTable({ username }) {
           );
 
           const fetchStaffPromises = PIDs.map((pid) =>
-            axios.get(fetchStaffRequestsRoute(pid), {
+            axios.get(fetchStaffRoute(pid), {
               headers: {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
@@ -119,7 +116,8 @@ function RequestTable({ username }) {
 
   useEffect(() => {
     console.log(staffRequests);
-  }, [staffRequests]);
+    console.log(expenditureRequests);
+  }, [staffRequests, expenditureRequests]);
 
   const expenditureRows = expenditureRequests.map((row, index) => (
     <Table.Tr key={index}>
@@ -246,7 +244,7 @@ function RequestTable({ username }) {
           </Table.Tbody>
         </Table>
       </ScrollArea>
-      <FileViewModal
+      <StaffViewModal
         opened={viewModalOpened}
         onClose={() => setViewModalOpened(false)}
         file={selectedFileID}
