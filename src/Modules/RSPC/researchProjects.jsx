@@ -10,33 +10,58 @@ import { useSelector } from "react-redux";
 import classes from "./styles/researchProjectsStyle.module.css";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import ProjectTable from "./components/tables/projectTable.jsx";
-import RequestTable from "./components/tables/requestTable.jsx";
-import InboxTable from "./components/tables/inboxTable.jsx";
-import ProcessedTable from "./components/tables/processedTable.jsx";
-import ProjectForm from "./components/forms/projectForm.jsx";
+// import RequestTable from "./components/tables/requestTable.jsx";
+// import InboxTable from "./components/tables/inboxTable.jsx";
+// import ProcessedTable from "./components/tables/processedTable.jsx";
+import ProjectAdditionForm from "./components/forms/projectAdditionForm.jsx";
 import Notifications from "./components/notifications.jsx";
 import {
   fetchProjectsRoute,
-  fetchUsernameRoute,
+  fetchPIDsRoute,
 } from "../../routes/RSPCRoutes/index.jsx";
-import { rspc_admin_designation } from "./helpers/designations.jsx";
+import StaffTable from "./components/tables/staffTable.jsx";
+import Appendix from "./components/forms/appendix.jsx";
 
 const categories = ["Most Recent", "Ongoing", "Completed", "Terminated"];
 
 function ResearchProjects() {
   const role = useSelector((state) => state.user.role);
-  const [username, setUsername] = useState("");
+  const [PIDs, setPIDs] = useState([]);
   const [projectsData, setProjectsData] = useState([]);
   const [activeTab, setActiveTab] = useState("1");
   const [sortedBy, setSortedBy] = useState("Most Recent");
   const tabsListRef = useRef(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchPIDs = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) return console.error("No authentication token found!");
       try {
+        const response = await axios.get(fetchPIDsRoute(role), {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        });
+        console.log("Fetched PIDs:", response.data);
+        setPIDs(response.data);
+      } catch (error) {
+        console.error("Error during Axios GET:", error);
+      }
+    };
+    fetchPIDs();
+  }, [role]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.error("No authentication token found!");
+      if (PIDs.length === 0) return;
+
+      try {
         const response = await axios.get(fetchProjectsRoute, {
+          params: { "pids[]": PIDs },
           headers: {
             Authorization: `Token ${token}`,
             "Content-Type": "application/json",
@@ -50,62 +75,47 @@ function ResearchProjects() {
       }
     };
     fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) return console.error("No authentication token found!");
-      try {
-        const response = await axios.get(fetchUsernameRoute, {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        });
-        console.log("Fetched Username:", response.data);
-        setUsername(response.data.username);
-      } catch (error) {
-        console.error("Error during Axios GET:", error);
-      }
-    };
-    fetchUsername();
-  }, []);
+  }, [PIDs]);
 
   const tabItems = [
     { title: "Notifications", component: <Notifications /> },
     {
       title: "Projects",
       component: (
-        <ProjectTable
-          setActiveTab={setActiveTab}
-          projectsData={projectsData}
-          username={username}
-        />
+        <ProjectTable setActiveTab={setActiveTab} projectsData={projectsData} />
       ),
     },
+    {
+      title: "Personnel",
+      component: <StaffTable setActiveTab={setActiveTab} />,
+    },
   ];
-  if (role === "Professor")
-    tabItems.push({
-      title: "Requests",
-      component: <RequestTable username={username} />,
-    });
-  else
-    tabItems.push({
-      title: "Inbox",
-      component: <InboxTable username={username} setActiveTab={setActiveTab} />,
-    });
-  if (role === rspc_admin_designation)
+  if (role.includes("Professor")) {
     tabItems.push({
       title: "Add Project",
-      component: <ProjectForm setActiveTab={setActiveTab} />,
+      component: <ProjectAdditionForm setActiveTab={setActiveTab} />,
     });
-  if (role !== "Professor")
-    tabItems.push({
-      title: "Processed Requests",
-      component: <ProcessedTable username={username} />,
-    });
+    // tabItems.push({
+    //   title: "Requests",
+    //   component: <RequestTable username={username} />,
+    // });
+  }
+  tabItems.push({
+    title: "Form Appendix",
+    component: <Appendix />,
+  });
+  // else {
+  //   tabItems.push({
+  //     title: "Inbox",
+  //     component: <InboxTable username={username} setActiveTab={setActiveTab} />,
+  //   });
+  // }
+  // if (!role.includes("Professor")) {
+  //   tabItems.push({
+  //     title: "Processed Requests",
+  //     component: <ProcessedTable username={username} />,
+  //   });
+  // }
 
   const handleTabChange = (direction) => {
     const newIndex =
@@ -195,7 +205,7 @@ function ResearchProjects() {
         </Flex>
       </Flex>
 
-      {tabItems[parseInt(activeTab, 10)].component}
+      {tabItems[parseInt(activeTab, 10)]?.component}
     </>
   );
 }
