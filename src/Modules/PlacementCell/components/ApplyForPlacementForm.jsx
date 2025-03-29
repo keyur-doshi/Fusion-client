@@ -10,12 +10,12 @@ import {
   NumberInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import axios from "axios";
+import { DateInput, TimeInput } from "@mantine/dates";
 import {
   fetchFormFieldsRoute,
   ApplyForPlacementRoute,
 } from "../../../routes/placementCellRoutes";
-import axios from "axios";
-import { DateInput, TimeInput } from "@mantine/dates";
 
 function ApplyToPlacementForm({ jobID }) {
   const [fields, setFields] = useState([]);

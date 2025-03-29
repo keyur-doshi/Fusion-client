@@ -7,32 +7,44 @@ import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Notifications } from "@mantine/notifications";
 import { Layout } from "./components/layout";
 
-import PlacementCellPage from "./Modules/PlacementCell";
-import JobApplicationForm from "./Modules/PlacementCell/ApplyForPlacementForm";
-import PlacementEventHandeling from "./Modules/PlacementCell/components/PlacementEventHandeling";
-import ApplicationStatusTimeline from "./Modules/PlacementCell/components/Timeline";
-
-// import { IwdRoutes } from "./Modules/Iwd/routes/index";
-import { DesignationsProvider } from "./Modules/Iwd/helper/designationContext";
-import { HealthCenter } from "./Modules/Health Center";
-import PurchaseNavbar from "./Modules/Purchase/PurchaseNavbar";
-import Inbox from "./Modules/Purchase/Inbox";
-import FiledIndents from "./Modules/Purchase/FilledIndents.jsx";
-import ViewIndentInbox from "./Modules/Purchase/ViewIndentInbox.jsx";
-import EmployeeViewFileIndent from "./Modules/Purchase/EmployeeViewFileIndent";
-import Archieved from "./Modules/Purchase/ArchievedIndents";
-import ViewIndent from "./Modules/Purchase/ViewIndent";
-import StockEntry from "./Modules/Purchase/StockEntry";
-import SavedIndents from "./Modules/Purchase/SavedIndentes";
-import Outbox from "./Modules/Purchase/Outbox.jsx";
-import { IndentForm } from "./Modules/Purchase/IndentForm.jsx";
-import NewForwardIndent from "./Modules/Purchase/NewForwardIndent.jsx";
-
 // eslint-disable-next-line import/no-unresolved
-import ConvenorBreadcumbs from "./Modules/Scholarship/convenor/components/ConvenorBreadcumbs";
+import { DesignationsProvider } from "./Modules/Iwd/helper/designationContext";
 import UserBreadcrumbs from "./Modules/Scholarship/user/components/UserBreadcumbs";
-import HostelPage from "./Modules/Hostel-Management/index";
 
+const PlacementCellPage = lazy(() => import("./Modules/PlacementCell"));
+const JobApplicationForm = lazy(
+  () => import("./Modules/PlacementCell/ApplyForPlacementForm"),
+);
+const PlacementEventHandeling = lazy(
+  () => import("./Modules/PlacementCell/components/PlacementEventHandeling"),
+);
+const ApplicationStatusTimeline = lazy(
+  () => import("./Modules/PlacementCell/components/Timeline"),
+);
+
+const HealthCenter = lazy(() => import("./Modules/Health Center"));
+const PurchaseNavbar = lazy(() => import("./Modules/Purchase/PurchaseNavbar"));
+const Inbox = lazy(() => import("./Modules/Purchase/Inbox"));
+const FiledIndents = lazy(() => import("./Modules/Purchase/FilledIndents.jsx"));
+const ViewIndentInbox = lazy(
+  () => import("./Modules/Purchase/ViewIndentInbox.jsx"),
+);
+const EmployeeViewFileIndent = lazy(
+  () => import("./Modules/Purchase/EmployeeViewFileIndent"),
+);
+const Archieved = lazy(() => import("./Modules/Purchase/ArchievedIndents"));
+const ViewIndent = lazy(() => import("./Modules/Purchase/ViewIndent"));
+const StockEntry = lazy(() => import("./Modules/Purchase/StockEntry"));
+const SavedIndents = lazy(() => import("./Modules/Purchase/SavedIndentes"));
+const Outbox = lazy(() => import("./Modules/Purchase/Outbox.jsx"));
+const IndentForm = lazy(() => import("./Modules/Purchase/IndentForm.jsx"));
+const NewForwardIndent = lazy(
+  () => import("./Modules/Purchase/NewForwardIndent.jsx"),
+);
+const ConvenorBreadcumbs = lazy(
+  () => import("./Modules/Scholarship/convenor/components/ConvenorBreadcumbs"),
+);
+const HostelPage = lazy(() => import("./Modules/Hostel-Management/index"));
 const IwdModule = lazy(() => import("./Modules/Iwd/index"));
 
 const Dashboard = lazy(
@@ -138,18 +150,12 @@ export default function App() {
           }
         />
         <Route
-          path="/mess"
-          element={
-            <Layout>
-              <MessPage />
-            </Layout>
-          }
-        />
-        <Route
           path="/placement-cell"
           element={
             <Layout>
-              <PlacementCellPage />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PlacementCellPage />
+              </Suspense>
             </Layout>
           }
         />
@@ -157,7 +163,9 @@ export default function App() {
           path="/placement-cell/apply-placement"
           element={
             <Layout>
-              <JobApplicationForm />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <JobApplicationForm />
+              </Suspense>
             </Layout>
           }
         />
@@ -165,7 +173,9 @@ export default function App() {
           path="/placement-cell/view"
           element={
             <Layout>
-              <PlacementEventHandeling />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PlacementEventHandeling />
+              </Suspense>
             </Layout>
           }
         />
@@ -173,7 +183,9 @@ export default function App() {
           path="/placement-cell/timeline"
           element={
             <Layout>
-              <ApplicationStatusTimeline />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <ApplicationStatusTimeline />
+              </Suspense>
             </Layout>
           }
         />
@@ -341,7 +353,9 @@ export default function App() {
           path="/hostel"
           element={
             <Layout>
-              <HostelPage />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <HostelPage />
+              </Suspense>
             </Layout>
           }
         />
@@ -362,7 +376,7 @@ export default function App() {
           element={
             <Layout>
               <Suspense fallback={<div>Loading .... </div>}>
-                <ResearchProjects/>
+                <ResearchProjects />
               </Suspense>
             </Layout>
           }
@@ -372,105 +386,8 @@ export default function App() {
           element={
             <Layout>
               <Suspense fallback={<div>Loading .... </div>}>
-                <RequestForms/>
+                <RequestForms />
               </Suspense>
-            </Layout>
-          }
-        />
-        <Route
-          path="/filetracking"
-          element={
-            <Layout>
-              <FileTracking />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <Bookings />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/cancel_request"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <CancellationRequest />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/active_bookings"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <ActiveBookingsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/completed_bookings"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <CompletedBookingsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/booking-form"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <BookingForm />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/room-availability"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <RoomsAvailibility />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/mess-record"
-          element={
-            <Layout>
-              <VisitorsContent />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/inventory"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <InventoryManagement />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/account-statement"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <AccountStatemnts />
-            </Layout>
-          }
-        />
-        <Route
-          path="/visitors_hostel/rules"
-          element={
-            <Layout>
-              <VisitorsContent />
-              <VHGuidelinesPage />
             </Layout>
           }
         />
@@ -478,35 +395,22 @@ export default function App() {
           path="/facultyprofessionalprofile/*"
           element={
             <Layout>
-              <FacultyProfessionalProfile />
-            </Layout>
-          }
-        />
-        <Route
-          path="/complaints"
-          element={
-            <Layout>
-              <ComplaintSystem />
-            </Layout>
-          }
-        />
-        <Route
-          path="/department"
-          element={
-            <Layout>
-              <DepartmentPage />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <FacultyProfessionalProfile />
+              </Suspense>
             </Layout>
           }
         />
 
-        {/* scholarship */}
         <Route
           path="/scholarship"
           element={
             <Layout>
-              {role === "spacsconvenor" && <ConvenorBreadcumbs />}
-              {role === "student" && <UserBreadcrumbs />}
-              {role === "spacsassistant" && <ConvenorBreadcumbs />}
+              <Suspense fallback={<div>Loading .... </div>}>
+                {role === "spacsconvenor" && <ConvenorBreadcumbs />}
+                {role === "student" && <UserBreadcrumbs />}
+                {role === "spacsassistant" && <ConvenorBreadcumbs />}
+              </Suspense>
             </Layout>
           }
         />
@@ -516,11 +420,13 @@ export default function App() {
           path="/purchase"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                {/* <MultiItemIndentForm /> */}
-                <IndentForm />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  {/* <MultiItemIndentForm /> */}
+                  <IndentForm />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -528,10 +434,12 @@ export default function App() {
           path="/purchase/all_filed_indents"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                <FiledIndents />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  <FiledIndents />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -539,10 +447,12 @@ export default function App() {
           path="/purchase/inbox"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                <Inbox />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  <Inbox />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -550,9 +460,11 @@ export default function App() {
           path="/purchase/forward_indent/:indentID"
           element={
             <Layout>
-              <PurchaseNavbar />
-              {/* <ForwardIndent /> */}
-              <NewForwardIndent />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                {/* <ForwardIndent /> */}
+                <NewForwardIndent />
+              </Suspense>
             </Layout>
           }
         />
@@ -560,10 +472,12 @@ export default function App() {
           path="/purchase/saved_indents"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                <SavedIndents />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  <SavedIndents />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -571,10 +485,12 @@ export default function App() {
           path="/purchase/archieved_indents"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                <Archieved />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  <Archieved />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -582,10 +498,12 @@ export default function App() {
           path="/purchase/outbox"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <div style={{ margin: "32px" }}>
-                <Outbox />
-              </div>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <div style={{ margin: "32px" }}>
+                  <Outbox />
+                </div>
+              </Suspense>
             </Layout>
           }
         />
@@ -593,8 +511,10 @@ export default function App() {
           path="/purchase/viewindent/:indentID"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <ViewIndentInbox />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <ViewIndentInbox />
+              </Suspense>
             </Layout>
           }
         />
@@ -602,8 +522,10 @@ export default function App() {
           path="/purchase/viewsavedindent/:indentID"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <ViewIndent />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <ViewIndent />
+              </Suspense>
             </Layout>
           }
         />
@@ -611,8 +533,10 @@ export default function App() {
           path="/purchase/employeeviewfiledindent/:indentID"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <EmployeeViewFileIndent />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <EmployeeViewFileIndent />
+              </Suspense>
             </Layout>
           }
         />
@@ -620,19 +544,11 @@ export default function App() {
           path="/purchase/stock_entry"
           element={
             <Layout>
-              <PurchaseNavbar />
-              <StockEntry />
+              <Suspense fallback={<div>Loading .... </div>}>
+                <PurchaseNavbar />
+                <StockEntry />
+              </Suspense>
             </Layout>
-          }
-        />
-        <Route
-          path="/iwd"
-          element={
-            <DesignationsProvider>
-              <Layout>
-                <IwdModule />
-              </Layout>
-            </DesignationsProvider>
           }
         />
         <Route path="/accounts/login" element={<LoginPage />} />

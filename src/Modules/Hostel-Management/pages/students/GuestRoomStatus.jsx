@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Paper, Group, Text, Stack, ScrollArea, Loader, Container } from "@mantine/core";
+import {
+  Paper,
+  Group,
+  Text,
+  Stack,
+  ScrollArea,
+  Loader,
+  Container,
+} from "@mantine/core";
 import GuestRoomBookingCardStudents from "../../components/students/GuestRoomBookingCardStudents";
 import axios from "axios";
 import { get_guestroom_bookings_for_students } from "../../../../routes/hostelManagementRoutes";
@@ -27,7 +35,7 @@ export default function GuestRoomBookingStatus() {
       console.error("Error fetching guest room bookings:", e);
       setError(
         e.response?.data?.message ||
-          "Failed to fetch guest room bookings. Please try again later."
+          "Failed to fetch guest room bookings. Please try again later.",
       );
       setGuestBookings([]);
     } finally {
@@ -41,7 +49,9 @@ export default function GuestRoomBookingStatus() {
 
   const renderBookingCards = (bookings, filterStatuses) =>
     bookings
-      .filter((booking) => filterStatuses.includes(booking.status.toLowerCase()))
+      .filter((booking) =>
+        filterStatuses.includes(booking.status.toLowerCase()),
+      )
       .map((booking) => (
         <GuestRoomBookingCardStudents
           key={booking.id}

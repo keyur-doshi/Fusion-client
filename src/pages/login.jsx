@@ -22,9 +22,9 @@ function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
-    // if (localStorage.getItem("authToken")) {
-    //   navigate("/dashboard");
-    // }
+    if (localStorage.getItem("authToken")) {
+      navigate("/dashboard");
+    }
   }, [navigate]);
 
   const handleSubmit = async (e) => {

@@ -31,7 +31,7 @@ function AddPlacementEventForm() {
   const [location, setLocation] = useState("");
   const [ctc, setCtc] = useState("");
   const [time, setTime] = useState("");
-  const [endDateTime, setEndDateTime] = useState(""); 
+  const [endDateTime, setEndDateTime] = useState("");
   const [placementType, setPlacementType] = useState("");
   const [description, setDescription] = useState("");
   const [jobrole, setRole] = useState("");

@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
-import {fetchPlacementStatsRoute} from "../../../routes/placementCellRoutes";
+import { fetchPlacementStatsRoute } from "../../../routes/placementCellRoutes";
 
 function AddPlacementRecordForm({ opened, onClose }) {
   const [companyName, setCompanyName] = useState("");
@@ -49,16 +49,13 @@ function AddPlacementRecordForm({ opened, onClose }) {
     }
 
     try {
-      const response = await fetch(
-        fetchPlacementStatsRoute,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Token ${token}`,
-          },
+      const response = await fetch(fetchPlacementStatsRoute, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Token ${token}`,
         },
-      );
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
