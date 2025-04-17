@@ -60,7 +60,7 @@ function JoiningReportAndIDCardApprovalModal({
       setSuccessAlertVisible(true);
       setTimeout(() => {
         setSuccessAlertVisible(false);
-        setActiveTab("1");
+        setActiveTab("0");
         window.location.reload();
       }, 2500);
     } catch (error) {

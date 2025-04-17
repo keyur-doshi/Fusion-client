@@ -12,7 +12,6 @@ import RSPCBreadcrumbs from "./components/RSPCBreadcrumbs.jsx";
 import StaffRecruitmentForm from "./components/forms/staffRecruitmentForm.jsx";
 import ProjectClosureForm from "./components/forms/projectClosureForm.jsx";
 import ProjectRegisterForm from "./components/forms/projectRegisterForm.jsx";
-import Notifications from "./components/notifications.jsx";
 import Appendix from "./components/forms/appendix.jsx";
 import ProjectCommencementForm from "./components/forms/projectCommencementForm.jsx";
 import StaffTable from "./components/tables/staffTable.jsx";
@@ -25,9 +24,9 @@ function RequestForms() {
   const tabsListRef = useRef(null);
   const location = useLocation();
   const { data, initialTab } = location.state || {};
-  const [activeTab, setActiveTab] = useState(initialTab || "1");
+  const [activeTab, setActiveTab] = useState(initialTab || "0");
 
-  const tabItems = [{ title: "Notifications", component: <Notifications /> }];
+  const tabItems = [];
   if (role.includes("Professor")) {
     tabItems.push({
       title: "Project Registration",

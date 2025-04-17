@@ -52,10 +52,10 @@ function ProjectTable({ setActiveTab, projectsData }) {
 
   const navigate = useNavigate();
   const handleProjectActionClick = (row) => {
-    let tabIndex = "2";
+    let tabIndex = "1";
     if (role.includes("Professor") || role.includes("SectionHead_RSPC")) {
       tabIndex =
-        row.status === "OnGoing" ? "2" : row.status === "Completed" ? "3" : "1";
+        row.status === "OnGoing" ? "1" : row.status === "Completed" ? "2" : "0";
     }
     navigate("/research/forms", {
       state: { data: row, initialTab: tabIndex },
@@ -63,7 +63,7 @@ function ProjectTable({ setActiveTab, projectsData }) {
   };
 
   const handleProjectAddClick = () => {
-    setActiveTab("3");
+    setActiveTab("1");
   };
 
   const handleViewClick = (row) => {

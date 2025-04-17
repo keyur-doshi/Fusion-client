@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import classes from "./styles/researchProjectsStyle.module.css";
 import ProjectTable from "./components/tables/projectTable.jsx";
 import ProjectAdditionForm from "./components/forms/projectAdditionForm.jsx";
-import Notifications from "./components/notifications.jsx";
 import { fetchProjectsRoute, fetchPIDsRoute } from "../../routes/RSPCRoutes";
 import InboxTable from "./components/tables/inboxTable.jsx";
 import Appendix from "./components/forms/appendix.jsx";
@@ -23,7 +22,7 @@ function ResearchProjects() {
   const role = useSelector((state) => state.user.role);
   const [PIDs, setPIDs] = useState([]);
   const [projectsData, setProjectsData] = useState([]);
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState("0");
   const [sortedBy, setSortedBy] = useState("Most Recent");
   const tabsListRef = useRef(null);
 
@@ -73,7 +72,6 @@ function ResearchProjects() {
   }, [PIDs]);
 
   const tabItems = [
-    { title: "Notifications", component: <Notifications /> },
     {
       title: "Projects",
       component: (
